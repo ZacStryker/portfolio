@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Zac Stryker{% endblock %}
+
+{% block head_extra %}
+<style>
+    .landing {
+        min-height: calc(100vh - 6rem);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .hero {
+        text-align: center;
+        padding: 4rem 0 3rem;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .hero .role {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        font-weight: 300;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero .location {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+    }
+
+    .nav-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+        width: 100%;
+        max-width: 900px;
+        margin-top: 2.5rem;
+    }
+
+    .nav-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem 1.25rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .nav-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px var(--shadow);
+    }
+
+    .nav-card-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nav-card h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .nav-card p {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .nav-cards {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nav-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing">
+    <div class="hero">
+        <h1>Zac Stryker</h1>
+        <p class="role">Fullstack Engineer / BI Developer</p>
+        <p class="location">Utrecht, Netherlands</p>
+    </div>
+
+    <div class="nav-cards">
+        <a href="{{ url_for('projects') }}" class="nav-card">
+            <div class="nav-card-icon">{{ projects | length }}</div>
+            <h2>Projects</h2>
+            <p>Interactive ML demos spanning vision and NLP</p>
+        </a>
+        <a href="{{ url_for('about') }}" class="nav-card">
+            <div class="nav-card-icon">&sim;</div>
+            <h2>About</h2>
+            <p>Background, philosophy, and interests</p>
+        </a>
+        <a href="{{ url_for('resume') }}" class="nav-card">
+            <div class="nav-card-icon">CV</div>
+            <h2>Resume</h2>
+            <p>Experience, education, and skills</p>
+        </a>
+        <a href="{{ url_for('contact') }}" class="nav-card">
+            <div class="nav-card-icon">@</div>
+            <h2>Contact</h2>
+            <p>Email, LinkedIn, and phone</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

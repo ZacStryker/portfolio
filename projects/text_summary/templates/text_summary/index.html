@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Text Summarization - ML Hub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .controls-panel {
+        background: var(--surface-light);
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .control-row {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .control-group {
+        flex: 1;
+        min-width: 180px;
+    }
+
+    .control-group label {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    select, input[type="number"] {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: 'Outfit', sans-serif;
+        background: var(--surface);
+        color: var(--text);
+        transition: border-color 0.2s;
+    }
+
+    select:focus, input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .text-areas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-section h2 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 350px;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-family: 'Outfit', sans-serif;
+        resize: vertical;
+        background: var(--surface);
+        color: var(--text);
+        line-height: 1.6;
+        transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .summary-output {
+        width: 100%;
+        min-height: 350px;
+        padding: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        color: var(--text);
+        white-space: pre-wrap;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .file-upload {
+        margin-top: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .file-upload input[type="file"] {
+        display: none;
+    }
+
+    .file-upload label {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: var(--surface-light);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .file-upload label:hover {
+        background: var(--border);
+        color: var(--text);
+    }
+
+    #fileName {
+        font-size: 0.85rem;
+        color: var(--success);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .loading-indicator {
+        display: none;
+        text-align: center;
+        padding: 1rem;
+        color: var(--text-muted);
+    }
+
+    .spinner {
+        border: 3px solid var(--surface-light);
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 0.75rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .error-banner {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        display: none;
+        font-size: 0.9rem;
+    }
+
+    .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+        display: none;
+    }
+
+    .metric-card {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        padding: 1.25rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        background: linear-gradient(135deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .text-areas {
+            grid-template-columns: 1fr;
+        }
+
+        .metrics {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="app-data" data-api-url="{{ url_for('text_summary.summarize') }}"></div>
+
+<div class="project-header">
+    <h1>Text Summarization</h1>
+    <p class="subtitle">Transform long texts into concise summaries using advanced AI algorithms</p>
+</div>
+
+<div class="main-card">
+    <div id="errorMessage" class="error-banner"></div>
+
+    <div class="controls-panel">
+        <div class="control-row">
+            <div class="control-group">
+                <label for="method">Summarization Method</label>
+                <select id="method" onchange="updateControls()">
+                    <option value="textrank">TextRank (Recommended)</option>
+                    <option value="lsa">LSA (Latent Semantic Analysis)</option>
+                    <option value="luhn">Luhn's Algorithm</option>
+                    <option value="abstractive">Abstractive (BART - Neural)</option>
+                </select>
+            </div>
+
+            <div id="extractiveControls" class="control-group">
+                <label for="numSentences">Number of Sentences</label>
+                <input type="number" id="numSentences" min="1" max="10" value="3">
+            </div>
+
+            <div id="abstractiveControls" style="display: none;">
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="maxLength">Max Length</label>
+                        <input type="number" id="maxLength" min="50" max="300" value="130">
+                    </div>
+                    <div class="control-group">
+                        <label for="minLength">Min Length</label>
+                        <input type="number" id="minLength" min="20" max="100" value="30">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-areas">
+        <div class="text-section">
+            <h2>Input Text</h2>
+            <textarea id="inputText" placeholder="Paste your article, document, or any text you want to summarize here..."></textarea>
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept=".txt,.md">
+                <label for="fileInput">Upload text file</label>
+                <span id="fileName"></span>
+            </div>
+        </div>
+
+        <div class="text-section">
+            <h2>Summary</h2>
+            <div class="summary-output" id="summaryOutput">Your summary will appear here...</div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>Generating summary...</p>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-primary" onclick="summarize()">Generate Summary</button>
+        <button class="btn-secondary" onclick="clearText()">Clear</button>
+        <button class="btn-success" onclick="downloadSummary()" id="downloadBtn" disabled>Download Summary</button>
+    </div>
+
+    <div class="metrics" id="metrics">
+        <div class="metric-card">
+            <div class="metric-value" id="originalWords">0</div>
+            <div class="metric-label">Original Words</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" id="summaryWords">0</div>
+            <div class="metric-label">Summary Words</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" id="compression">0%</div>
+            <div class="metric-label">Compression Ratio</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" id="timeTaken">0s</div>
+            <div class="metric-label">Time Taken</div>
+        </div>
+    </div>
+</div>
+
+<div class="overview-card">
+    <h3>Technical Overview</h3>
+    <p>This project provides both extractive and abstractive summarization powered by a Flask API backend.</p>
+    <p>Extractive methods (TextRank, LSA, Luhn) use the sumy library to score and select the most important sentences from the original text based on graph ranking, singular value decomposition, or word frequency analysis.</p>
+    <p>The abstractive method uses the facebook/bart-large-cnn transformer model via Hugging Face, which generates new sentences that capture the meaning of the input using beam search decoding.</p>
+    <p>Text is sent to the server via a POST request, processed by the selected algorithm, and returned with metrics including word count, compression ratio, and processing time.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('text_summary.static', filename='script.js') }}"></script>
+{% endblock %}

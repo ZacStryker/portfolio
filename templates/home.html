@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}ML Hub - Machine Learning Projects{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="dashboard-header">
+        <h1>ML Hub</h1>
+        <p class="subtitle">Interactive machine learning projects</p>
+    </header>
+
+    <div class="project-grid">
+        {% for project in projects %}
+        <a href="/{{ project.id }}/" class="project-card" style="--accent: {{ project.color }}">
+            <div class="card-accent"></div>
+            <div class="card-body">
+                <span class="card-category">{{ project.category }}</span>
+                <h2>{{ project.name }}</h2>
+                <p>{{ project.description }}</p>
+                <div class="card-tags">
+                    {% for tag in project.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <span class="card-link">Launch</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

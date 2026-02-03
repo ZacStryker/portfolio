@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Resume - ML Hub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .resume {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .resume-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .resume-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .resume-title {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        font-weight: 300;
+        margin-bottom: 1rem;
+    }
+
+    .resume-contact {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .resume-contact a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.15s;
+    }
+
+    .resume-contact a:hover {
+        color: var(--text);
+    }
+
+    .resume-section {
+        margin-bottom: 2rem;
+    }
+
+    .resume-section h2 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1.25rem;
+    }
+
+    .resume-entry {
+        margin-bottom: 1.5rem;
+    }
+
+    .resume-entry:last-child {
+        margin-bottom: 0;
+    }
+
+    .entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.25rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .entry-company {
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .entry-dates {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+    }
+
+    .entry-role {
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .entry-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .skill-group h3 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .skill-group p {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .entry-header {
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .skills-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="resume">
+    <div class="resume-header">
+        <h1>Zac Stryker</h1>
+        <p class="resume-title">Fullstack Engineer / BI Developer</p>
+        <div class="resume-contact">
+            <a href="mailto:zac@zacstryker.com">zac@zacstryker.com</a>
+            <a href="https://linkedin.com/in/zac-stryker-89333398">LinkedIn</a>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">Utrecht, Netherlands</span>
+        </div>
+    </div>
+
+    <div class="resume-section">
+        <h2>Experience</h2>
+
+        <div class="resume-entry">
+            <div class="entry-header">
+                <span class="entry-company">Day Pitney LLP</span>
+                <span class="entry-dates">Sep 2023 &ndash; Present</span>
+            </div>
+            <div class="entry-role">Financial Systems Support Specialist</div>
+            <p class="entry-desc">Develops web applications and cloud solutions for finance workflows using C#/.NET. Translates financial logic into database solutions, migrates legacy SSIS packages to Azure, designs reporting solutions, and provides technical support.</p>
+        </div>
+
+        <div class="resume-entry">
+            <div class="entry-header">
+                <span class="entry-company">United States Defense Health Agency</span>
+                <span class="entry-dates">Dec 2021 &ndash; Jul 2023</span>
+            </div>
+            <div class="entry-role">Business Intelligence Developer (Contract)</div>
+            <p class="entry-desc">Built Tableau and QlikView dashboards for healthcare quality metrics. Created ETL pipelines, administered BI environments, implemented data privacy safeguards, and designed interactive visualizations.</p>
+        </div>
+
+        <div class="resume-entry">
+            <div class="entry-header">
+                <span class="entry-company">Florida Department of Health</span>
+                <span class="entry-dates">Oct 2020 &ndash; Dec 2021</span>
+            </div>
+            <div class="entry-role">Technical Support Analyst (Contract)</div>
+            <p class="entry-desc">Developed Qlik Sense and Power BI dashboards for COVID-19 reporting. Built performance tracking models and provided technical support for high-volume datasets.</p>
+        </div>
+
+        <div class="resume-entry">
+            <div class="entry-header">
+                <span class="entry-company">Aderant</span>
+                <span class="entry-dates">Jun 2018 &ndash; Apr 2020</span>
+            </div>
+            <div class="entry-role">Intermediate Technical Support Specialist</div>
+            <p class="entry-desc">Provided technical support for enterprise law firm management software. Managed deployments, resolved connectivity issues, and optimized SQL performance.</p>
+        </div>
+    </div>
+
+    <div class="resume-section">
+        <h2>Education</h2>
+        <div class="resume-entry">
+            <div class="entry-header">
+                <span class="entry-company">Florida State University</span>
+                <span class="entry-dates">2016</span>
+            </div>
+            <div class="entry-role">Bachelor of the Arts in Music (Classical Guitar)</div>
+        </div>
+    </div>
+
+    <div class="resume-section">
+        <h2>Skills</h2>
+        <div class="skills-grid">
+            <div class="skill-group">
+                <h3>Development</h3>
+                <p>C#/.NET, MVC, JavaScript/jQuery, SQL/T-SQL, Python, REST API, Git</p>
+            </div>
+            <div class="skill-group">
+                <h3>Analytics</h3>
+                <p>Power BI, Tableau, Qlik Sense/QlikView, SSRS/SSIS, Snowflake, ETL, Data Modeling</p>
+            </div>
+            <div class="skill-group">
+                <h3>Cloud &amp; Automation</h3>
+                <p>Microsoft Azure, Power Automate, Cloud Migration, Excel VBA</p>
+            </div>
+            <div class="skill-group">
+                <h3>Infrastructure</h3>
+                <p>NGINX, IIS, DNS, SSL, Docker, Windows, Ubuntu</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

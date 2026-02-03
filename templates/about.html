@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}About - Zac Stryker{% endblock %}
+
+{% block head_extra %}
+<style>
+    .about {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .about-intro {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .about-intro h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .about-intro .tagline {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        font-weight: 300;
+    }
+
+    .about-section {
+        margin-bottom: 2rem;
+    }
+
+    .about-section h2 {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+    }
+
+    .about-section p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+
+    .about-section p:last-child {
+        margin-bottom: 0;
+    }
+
+    .about-highlights {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .highlight-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+    }
+
+    .highlight-card h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .highlight-card p {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+        .about-highlights {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about">
+    <div class="about-intro">
+        <h1>About</h1>
+        <p class="tagline">Full Stack Engineer | Musician | Cat Dad</p>
+    </div>
+
+    <div class="about-section">
+        <h2>Background</h2>
+        <p>Zac Stryker is a full stack engineer and business intelligence developer based in Utrecht, Netherlands, specializing in data-driven applications, custom web solutions, automated workflows, and data visualization dashboards.</p>
+        <p>His path into tech started with music theory and composition studies in college, followed by work in the College of Music's computer lab where his passion for technology took off. He built a technical foundation through support roles at Aderant, then pivoted to data analytics with the Florida Department of Health and the Defense Health Agency during the pandemic.</p>
+        <p>Today he works at Day Pitney LLP developing financial applications with C#/.NET, cloud technologies, and BI tools including Tableau, QlikView, and Power BI.</p>
+    </div>
+
+    <div class="about-section">
+        <h2>Philosophy</h2>
+        <p>Zac believes the best technology is invisible. He champions user-centered design, continuous learning, and transparent communication. His approach is what he calls pragmatic innovation &mdash; balancing cutting-edge solutions with measurable business outcomes.</p>
+        <p>He brings a creative, analytical mindset to solving complex business problems, working at the intersection of software engineering, data analytics, and user experience design.</p>
+    </div>
+
+    <div class="about-highlights">
+        <div class="highlight-card">
+            <h3>Web &amp; Cloud</h3>
+            <p>Full stack applications, Azure cloud migration, automated workflows</p>
+        </div>
+        <div class="highlight-card">
+            <h3>Data &amp; Analytics</h3>
+            <p>BI dashboards, ETL pipelines, data visualization, reporting systems</p>
+        </div>
+        <div class="highlight-card">
+            <h3>Music</h3>
+            <p>Classical guitar, music theory &amp; composition (FSU '16)</p>
+        </div>
+        <div class="highlight-card">
+            <h3>Interests</h3>
+            <p>Machine learning, user experience design, pragmatic innovation</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ML Hub{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    {% set ns = namespace(show_sidebar=request.path.startswith('/projects')) %}
+    {% for project in projects %}
+        {% if request.path.startswith('/' + project.id) %}{% set ns.show_sidebar = true %}{% endif %}
+    {% endfor %}
+
+    <header class="topbar">
+        <a href="{{ url_for('landing') }}" class="nav-brand">Zac Stryker</a>
+        <a href="{{ url_for('landing') }}" class="topbar-link {% if request.path == '/' %}active{% endif %}">Home</a>
+        <a href="{{ url_for('projects') }}" class="topbar-link {% if ns.show_sidebar %}active{% endif %}">Projects</a>
+        <a href="{{ url_for('about') }}" class="topbar-link {% if request.path == '/about/' %}active{% endif %}">About</a>
+        <a href="{{ url_for('resume') }}" class="topbar-link {% if request.path == '/resume/' %}active{% endif %}">Resume</a>
+        <a href="{{ url_for('contact') }}" class="topbar-link {% if request.path == '/contact/' %}active{% endif %}">Contact</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+    </header>
+
+    <script>
+        (function() {
+            var btn = document.getElementById('themeToggle');
+            function icon() {
+                return document.documentElement.getAttribute('data-theme') === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+            }
+            btn.textContent = icon();
+            btn.addEventListener('click', function() {
+                var current = document.documentElement.getAttribute('data-theme');
+                var next = current === 'light' ? 'dark' : 'light';
+                if (next === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                } else {
+                    document.documentElement.setAttribute('data-theme', next);
+                }
+                localStorage.setItem('theme', next);
+                btn.textContent = icon();
+            });
+        })();
+    </script>
+
+    <div class="app-layout">
+        {% if ns.show_sidebar %}
+        <nav class="sidebar">
+            <div class="sidebar-nav">
+                {% for project in projects %}
+                <a href="/{{ project.id }}/" class="sidebar-link {% if request.path.startswith('/' + project.id) %}active{% endif %}">
+                    <span class="sidebar-dot" style="background: {{ project.color }}"></span>
+                    {{ project.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </nav>
+        {% endif %}
+
+        <main class="page-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - Zac Stryker{% endblock %}
+
+{% block head_extra %}
+<style>
+    .contact {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .contact-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .contact-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .contact-header p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        font-weight: 300;
+    }
+
+    .contact-links {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .contact-card {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: var(--text);
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px var(--shadow);
+    }
+
+    .contact-icon {
+        font-size: 1.5rem;
+        width: 2.5rem;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .contact-info h3 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .contact-info p {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact">
+    <div class="contact-header">
+        <h1>Contact</h1>
+        <p>Get in touch</p>
+    </div>
+
+    <div class="contact-links">
+        <a href="mailto:zac@zacstryker.com" class="contact-card">
+            <div class="contact-icon">@</div>
+            <div class="contact-info">
+                <h3>Email</h3>
+                <p>zac@zacstryker.com</p>
+            </div>
+        </a>
+
+        <a href="https://linkedin.com/in/zac-stryker-89333398" class="contact-card" target="_blank" rel="noopener">
+            <div class="contact-icon">in</div>
+            <div class="contact-info">
+                <h3>LinkedIn</h3>
+                <p>Zac Stryker</p>
+            </div>
+        </a>
+
+        <a href="tel:+19045025331" class="contact-card">
+            <div class="contact-icon">tel</div>
+            <div class="contact-info">
+                <h3>Phone</h3>
+                <p>+1 (904) 502-5331</p>
+            </div>
+        </a>
+
+        <div class="contact-card">
+            <div class="contact-icon">loc</div>
+            <div class="contact-info">
+                <h3>Location</h3>
+                <p>Utrecht, Netherlands</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
