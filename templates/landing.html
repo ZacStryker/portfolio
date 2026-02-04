@@ -37,7 +37,7 @@
 
     .nav-cards {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.25rem;
         width: 100%;
         max-width: 900px;
@@ -124,6 +124,11 @@
             <div class="nav-card-icon">CV</div>
             <h2>Resume</h2>
             <p>Experience, education, and skills</p>
+        </a>
+        <a href="{{ url_for('blog') }}" class="nav-card">
+            <div class="nav-card-icon">&para;</div>
+            <h2>Blog</h2>
+            <p>Thoughts and write-ups</p>
         </a>
         <a href="{{ url_for('contact') }}" class="nav-card">
             <div class="nav-card-icon">@</div>

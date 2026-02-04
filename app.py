@@ -1,5 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 from projects import discover_and_register, PROJECT_REGISTRY
+
+BLOG_POSTS = [
+    {
+        'slug': 'bi-to-ml-engineering',
+        'title': 'From BI Dashboards to ML Pipelines: Changing Career Tracks',
+        'date': '2026-02-03',
+        'summary': 'Reflections on transitioning from business intelligence to machine learning engineering, and why the jump is smaller than you think.',
+    },
+]
 
 
 def create_app():
@@ -31,6 +40,17 @@ def create_app():
     @app.route('/contact/')
     def contact():
         return render_template('contact.html')
+
+    @app.route('/blog/')
+    def blog():
+        return render_template('blog.html', posts=BLOG_POSTS)
+
+    @app.route('/blog/<slug>/')
+    def blog_post(slug):
+        post = next((p for p in BLOG_POSTS if p['slug'] == slug), None)
+        if post is None:
+            abort(404)
+        return render_template(f'blog/{slug}.html', post=post)
 
     return app
 

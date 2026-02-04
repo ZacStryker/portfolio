@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Zac Stryker{% endblock %}
+
+{% block head_extra %}
+<style>
+    .post {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .post-header {
+        margin-bottom: 2rem;
+    }
+
+    .post-back {
+        display: inline-block;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+    }
+
+    .post-back:hover {
+        color: var(--text);
+    }
+
+    .post-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+
+    .post-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .post-body h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 2rem 0 0.75rem;
+    }
+
+    .post-body p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    .post-body strong {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .post-body ul {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .post-body li {
+        margin-bottom: 0.4rem;
+    }
+
+    .post-body blockquote {
+        border-left: 3px solid var(--primary);
+        padding: 0.75rem 1.25rem;
+        margin: 1.5rem 0;
+        background: var(--surface);
+        border-radius: 0 8px 8px 0;
+    }
+
+    .post-body blockquote p {
+        margin-bottom: 0;
+        font-style: italic;
+    }
+
+    .post-body code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        background: var(--surface-light);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="post">
+    <div class="post-header">
+        <a href="{{ url_for('blog') }}" class="post-back">&larr; Back to blog</a>
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">{{ post.date }}</div>
+    </div>
+
+    <div class="post-body">
+        <p>A year ago, if you'd told me I'd be training neural networks and debugging tensor shapes, I would have laughed. My world was Tableau, QlikView, and SQL queries. But here I am, and the path from business intelligence to machine learning engineering turned out to be shorter than I expected.</p>
+
+        <h2>The BI Foundation</h2>
+
+        <p>Working in BI gave me something that a lot of ML tutorials skip over: an intuition for data. Years of building dashboards at the Defense Health Agency and the Florida Department of Health meant I spent my days living inside datasets. I knew what messy data looked like. I knew how to spot outliers, understand distributions, and ask the right questions before writing a single line of code.</p>
+
+        <p>That foundation matters more than people realize. A surprising amount of ML engineering is <strong>data engineering</strong> &mdash; cleaning, transforming, and understanding your inputs before any model gets involved. The ETL pipelines I built in SSIS and the data models I designed in Snowflake were closer to ML preprocessing than I thought.</p>
+
+        <h2>The Pivot Point</h2>
+
+        <p>The shift started with a simple question: what if the dashboard could tell you what's <em>going</em> to happen instead of what already happened? BI is inherently retrospective. You're summarizing the past. Machine learning flips that around.</p>
+
+        <p>I started small. Python was already in my toolkit from automation scripts, so I picked up scikit-learn and started with the basics &mdash; regression, classification, clustering. The concepts clicked faster than I expected because I already understood the data side. What changed was the tooling:</p>
+
+        <ul>
+            <li><strong>SQL queries</strong> became <strong>pandas DataFrames</strong></li>
+            <li><strong>Calculated fields</strong> became <strong>feature engineering</strong></li>
+            <li><strong>Dashboard KPIs</strong> became <strong>model evaluation metrics</strong></li>
+            <li><strong>ETL pipelines</strong> became <strong>training pipelines</strong></li>
+        </ul>
+
+        <p>The mental models transfer. Precision and recall aren't that different from the accuracy checks I was already doing on BI reports. A confusion matrix is just a crosstab with higher stakes.</p>
+
+        <h2>What I Had to Unlearn</h2>
+
+        <p>Not everything carried over cleanly. BI trained me to think in exact numbers &mdash; a revenue figure is either right or wrong. ML lives in probabilities. A model that's 92% accurate is considered good. That took some adjusting.</p>
+
+        <p>I also had to let go of the "one query, one answer" mindset. In BI, you write a query and get a result. In ML, you train a model, evaluate it, tweak hyperparameters, retrain, and repeat. The iteration cycle is fundamentally different. It's more experimental, more scientific.</p>
+
+        <blockquote><p>The hardest part wasn't learning TensorFlow. It was accepting that "good enough" is a valid outcome when you're working with probabilistic systems.</p></blockquote>
+
+        <h2>The Projects That Bridged the Gap</h2>
+
+        <p>The two projects on this site represent different stages of that transition. The <strong>text summarization</strong> project was my entry point &mdash; NLP felt natural because I'd spent years working with text data in reports. Understanding extractive vs. abstractive summarization mapped well onto my existing knowledge of how information gets condensed in executive dashboards.</p>
+
+        <p>The <strong>digit recognition</strong> project pushed me into new territory: computer vision, neural networks, and client-side inference with TensorFlow.js. That was the moment it stopped feeling like extended BI and started feeling like a new discipline.</p>
+
+        <h2>What Transfers, What Doesn't</h2>
+
+        <p><strong>Transfers well:</strong></p>
+        <ul>
+            <li>Data intuition and EDA skills</li>
+            <li>SQL and data transformation experience</li>
+            <li>Understanding of business context and stakeholder communication</li>
+            <li>Visualization skills (useful for model interpretability)</li>
+            <li>ETL and pipeline thinking</li>
+        </ul>
+
+        <p><strong>Need to build from scratch:</strong></p>
+        <ul>
+            <li>Linear algebra and calculus fundamentals</li>
+            <li>Deep learning frameworks (TensorFlow, PyTorch)</li>
+            <li>Model architecture design</li>
+            <li>GPU/hardware considerations</li>
+            <li>Research paper literacy</li>
+        </ul>
+
+        <h2>Advice for BI Developers Considering the Switch</h2>
+
+        <p><strong>Start with what you know.</strong> Pick a dataset from your domain and apply ML to it. If you've been building sales dashboards, try demand forecasting. If you've been doing healthcare analytics, try patient outcome prediction. The domain knowledge you already have is a genuine advantage.</p>
+
+        <p><strong>Don't skip the math, but don't let it block you either.</strong> You can build working models without a PhD in statistics. But understanding the intuition behind gradient descent and backpropagation will make you a better engineer. Learn it incrementally.</p>
+
+        <p><strong>Build things.</strong> The gap between "completed a tutorial" and "built something from scratch" is where the real learning happens. Deploy a model. Make it accessible through a web interface. The full loop from data to user-facing product is what separates ML engineers from people who can run <code>model.fit()</code>.</p>
+
+        <p>The career tracks aren't as far apart as the job titles suggest. BI gave me the data skills. ML gives me a new set of tools to apply them. The transition isn't a leap &mdash; it's a step.</p>
+    </div>
+</article>
+{% endblock %}
