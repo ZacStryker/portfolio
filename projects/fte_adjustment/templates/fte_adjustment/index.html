@@ -1,0 +1,745 @@
+{% extends "base.html" %}
+
+{% block title %}FTE Adjustment Model - ML Hub{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+    /* Timeline */
+    .timeline {
+        display: flex;
+        justify-content: space-evenly;
+        position: relative;
+        margin: 2rem 0 2.5rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 30px;
+        left: 10%;
+        right: 10%;
+        height: 4px;
+        background: var(--border);
+        z-index: 0;
+    }
+
+    .timeline-point {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-dot {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #3498db;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+    }
+
+    .timeline-label {
+        color: var(--text-muted);
+        font-size: 0.85em;
+        font-weight: 600;
+        max-width: 120px;
+    }
+
+    .timeline-pill {
+        width: 90px;
+        height: 45px;
+        border-radius: 30px;
+        margin: 10px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        background: #58cc02;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        font-size: 0.85rem;
+    }
+
+    /* Overview list */
+    .overview-list {
+        margin: 1rem 0 1rem 1.5rem;
+        color: var(--text-muted);
+        line-height: 2;
+    }
+
+    .overview-list strong {
+        color: var(--text);
+    }
+
+    /* Business goals grid */
+    .goals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-top: 1.25rem;
+    }
+
+    .goal-item {
+        background: linear-gradient(135deg, #3498db 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Phase cards */
+    .phase-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (min-width: 900px) {
+        .phase-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .phase-card {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: transform 0.2s ease;
+    }
+
+    .phase-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .phase-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .phase-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        margin-right: 1rem;
+        font-size: 1.1em;
+        flex-shrink: 0;
+    }
+
+    .phase-1 .phase-number { background: #f093fb; }
+    .phase-2 .phase-number { background: #4facfe; }
+    .phase-3 .phase-number { background: #43e97b; }
+    .phase-4 .phase-number { background: #fa709a; }
+
+    .phase-title {
+        font-size: 1.05em;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .phase-subtitle {
+        font-size: 0.8em;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .equation {
+        background: var(--surface);
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1em;
+        color: var(--text);
+        overflow-x: auto;
+        border: 1px solid var(--border);
+    }
+
+    .equation-main {
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+
+    .fraction {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        margin: 0 3px;
+    }
+
+    .fraction-numerator {
+        border-bottom: 2px solid var(--text);
+        padding-bottom: 3px;
+    }
+
+    .fraction-denominator {
+        padding-top: 3px;
+    }
+
+    .variable-list {
+        margin-top: 1rem;
+        font-size: 0.85em;
+        line-height: 1.9;
+        color: var(--text-muted);
+    }
+
+    .variable {
+        color: #3498db;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Code blocks */
+    .code-card {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .code-card h3 {
+        color: #3498db;
+        margin-bottom: 1rem;
+        font-size: 1.15em;
+    }
+
+    .code-block {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 1.25rem;
+        border-radius: 10px;
+        overflow-x: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85em;
+        line-height: 1.7;
+        margin: 1rem 0;
+    }
+
+    .code-block pre {
+        margin: 0;
+        padding: 0;
+    }
+
+    .code-explanation {
+        color: var(--text-muted);
+        line-height: 1.8;
+        margin: 1rem 0;
+    }
+
+    .code-explanation strong {
+        color: var(--text);
+    }
+
+    .highlight {
+        background: #3498db20;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text);
+    }
+
+    /* Tables */
+    .table-wrapper {
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--surface);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    thead {
+        background: var(--surface-light);
+    }
+
+    th, td {
+        padding: 0.85rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+
+    th {
+        font-weight: 600;
+        color: var(--text);
+        font-size: 0.9em;
+    }
+
+    td {
+        color: var(--text-muted);
+        font-size: 0.85em;
+    }
+
+    tbody tr:hover {
+        background: var(--surface-light);
+    }
+
+    .table-narrow {
+        max-width: 700px;
+        margin: 1.5rem auto;
+    }
+
+    /* Results list */
+    .results-list {
+        margin: 1.5rem 0 1.5rem 1.5rem;
+        color: var(--text-muted);
+        line-height: 2;
+    }
+
+    .results-list li {
+        margin-bottom: 1rem;
+    }
+
+    .results-list strong {
+        color: var(--text);
+    }
+
+    /* Chart */
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin: 1.5rem 0;
+    }
+
+    /* Section headings in cards */
+    .overview-card h3,
+    .main-card > h3 {
+        color: #3498db;
+        font-size: 1.15em;
+        margin-bottom: 1rem;
+    }
+
+    .overview-card p {
+        color: var(--text-muted);
+        line-height: 1.8;
+        margin-bottom: 0.75rem;
+    }
+
+    .overview-card p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Notes */
+    .note-centered {
+        text-align: center;
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.85em;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-header">
+    <h1>FTE Adjustment Model</h1>
+    <p class="subtitle">Accurately forecast employee capacity during extended absences by modeling ramp-down and ramp-up periods</p>
+</div>
+
+<div class="overview-card">
+    <h3>Overview</h3>
+        <p>
+            Many companies need to track FTE (Full-Time Equivalent) values for planning, budgeting, and resource allocation.
+            When employees take extended leave, most systems treat capacity as a binary state: either 1.0 FTE (fully present) or 0.0 FTE (absent).
+        </p>
+        <p>
+            In reality, employee productivity doesn't drop instantly to zero when leave begins, nor does it snap back to 100% immediately upon return.
+            Employees typically experience a gradual ramp-down period before extended leave as they transfer knowledge and wrap up projects.
+            Similarly, they need a ramp-up period after returning to reintegrate and regain full productivity.
+        </p>
+        <p>
+            This model addresses that gap by calculating adjusted FTE values that account for these transition periods, giving stakeholders a more accurate picture of available capacity.
+        </p>
+
+    <h3 style="margin-top: 1.5rem">Business Goals</h3>
+        <div class="goals-grid">
+            <div class="goal-item">More Accurate Planning</div>
+            <div class="goal-item">Realistic Budget Forecasts</div>
+            <div class="goal-item">Better Resource Allocation</div>
+            <div class="goal-item">Improved Capacity Models</div>
+        </div>
+
+</div>
+
+<div class="main-card">
+    <h3>How It Works</h3>
+        <p>
+            The model applies weighted FTE multipliers during four distinct phases:
+        </p>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <div class="timeline-point">
+                <div class="timeline-dot">P1</div>
+                <div class="timeline-label">Ramp Down Start</div>
+            </div>
+            <div class="timeline-point">
+                <div class="timeline-dot">P2</div>
+                <div class="timeline-label">Ramp Down Spillover</div>
+            </div>
+            <div class="timeline-point">
+                <div class="timeline-pill">Absence</div>
+            </div>
+            <div class="timeline-point">
+                <div class="timeline-dot">P3</div>
+                <div class="timeline-label">Ramp Up Start</div>
+            </div>
+            <div class="timeline-point">
+                <div class="timeline-dot">P4</div>
+                <div class="timeline-label">Ramp Up Spillover</div>
+            </div>
+        </div>
+
+        <ul class="overview-list">
+            <li><strong>Ramp Down:</strong> 14 calendar days before absence begins, FTE is weighted at 75%</li>
+            <li><strong>Absence:</strong> During the leave period, FTE is 0%</li>
+            <li><strong>Ramp Up:</strong> 28 calendar days after absence ends, FTE is weighted at 50%</li>
+        </ul>
+
+    <h3 style="margin-top: 2rem">Phase Breakdown</h3>
+    <p style="color: var(--text-muted); margin-bottom: 1.25rem;">The algorithm breaks the ramp-down and ramp-up periods into four potential monthly adjustments, each with its own calculation:</p>
+
+<div class="phase-grid">
+    <div class="phase-card phase-1">
+        <div class="phase-header">
+            <div class="phase-number">P1</div>
+            <div>
+                <div class="phase-title">Ramp Down Start</div>
+                <div class="phase-subtitle">Month where ramp-down begins</div>
+            </div>
+        </div>
+        <div class="equation">
+            <div class="equation-main">
+                P<sub>1</sub> =
+                <span class="fraction">
+                    <div class="fraction-numerator">D<sub>1</sub></div>
+                    <div class="fraction-denominator">M<sub>1</sub></div>
+                </span>
+                +
+                <span class="fraction">
+                    <div class="fraction-numerator">R<sub>1</sub></div>
+                    <div class="fraction-denominator">M<sub>1</sub></div>
+                </span>
+                &times; 0.75
+            </div>
+        </div>
+        <div class="variable-list">
+            <div><span class="variable">D<sub>1</sub></span> = Days before ramp down</div>
+            <div><span class="variable">M<sub>1</sub></span> = Total days in month</div>
+            <div><span class="variable">R<sub>1</sub></span> = Days during ramp down (up to 14)</div>
+            <div><strong>Effect:</strong> Adds unweighted FTE before ramp down to weighted FTE during ramp down. If R<sub>1</sub> &lt; 14 days, remaining ramp down days spill into P2</div>
+        </div>
+    </div>
+
+    <div class="phase-card phase-2">
+        <div class="phase-header">
+            <div class="phase-number">P2</div>
+            <div>
+                <div class="phase-title">Ramp Down Spillover</div>
+                <div class="phase-subtitle">Continuation into next month (if needed)</div>
+            </div>
+        </div>
+        <div class="equation">
+            <div class="equation-main">
+                P<sub>2</sub> =
+                <span class="fraction">
+                    <div class="fraction-numerator">R<sub>2</sub></div>
+                    <div class="fraction-denominator">M<sub>2</sub></div>
+                </span>
+                &times; 0.75
+            </div>
+        </div>
+        <div class="variable-list">
+            <div><span class="variable">R<sub>2</sub></span> = Days remaining from P1</div>
+            <div><span class="variable">M<sub>2</sub></span> = Total days in spillover month</div>
+            <div><strong>Effect:</strong> If ramp down extends beyond P1 month end, applies 75% FTE weighting to remaining ramp down days. Otherwise, 0.</div>
+        </div>
+    </div>
+
+    <div class="phase-card phase-3">
+        <div class="phase-header">
+            <div class="phase-number">P3</div>
+            <div>
+                <div class="phase-title">Ramp Up Start</div>
+                <div class="phase-subtitle">Month where ramp-up begins</div>
+            </div>
+        </div>
+        <div class="equation">
+            <div class="equation-main">
+                P<sub>3</sub> =
+                <span class="fraction">
+                    <div class="fraction-numerator">R<sub>3</sub></div>
+                    <div class="fraction-denominator">M<sub>3</sub></div>
+                </span>
+                &times; 0.5 +
+                <span class="fraction">
+                    <div class="fraction-numerator">D<sub>3</sub></div>
+                    <div class="fraction-denominator">M<sub>3</sub></div>
+                </span>
+            </div>
+        </div>
+        <div class="variable-list">
+            <div><span class="variable">R<sub>3</sub></span> = Days during ramp up (up to 28)</div>
+            <div><span class="variable">M<sub>3</sub></span> = Total days in month</div>
+            <div><span class="variable">D<sub>3</sub></span> = Days after ramp up ends</div>
+            <div><strong>Effect:</strong> Adds weighted FTE during ramp up to unweighted FTE after ramp up. If ramp up extends beyond month end, remaining ramp up days spill into P4</div>
+        </div>
+    </div>
+
+    <div class="phase-card phase-4">
+        <div class="phase-header">
+            <div class="phase-number">P4</div>
+            <div>
+                <div class="phase-title">Ramp Up Spillover</div>
+                <div class="phase-subtitle">Continuation into next month (if needed)</div>
+            </div>
+        </div>
+        <div class="equation">
+            <div class="equation-main">
+                P<sub>4</sub> =
+                <span class="fraction">
+                    <div class="fraction-numerator">R<sub>4</sub></div>
+                    <div class="fraction-denominator">M<sub>4</sub></div>
+                </span>
+                &times; 0.5 +
+                <span class="fraction">
+                    <div class="fraction-numerator">D<sub>4</sub></div>
+                    <div class="fraction-denominator">M<sub>4</sub></div>
+                </span>
+            </div>
+        </div>
+        <div class="variable-list">
+            <div><span class="variable">R<sub>4</sub></span> = Days remaining from P3</div>
+            <div><span class="variable">M<sub>4</sub></span> = Total days in spillover month</div>
+            <div><span class="variable">D<sub>4</sub></span> = Days after ramp up ends</div>
+            <div><strong>Effect:</strong> If ramp up extends beyond P3 month end, applies 50% FTE weighting to remaining ramp up days, then unweighted FTE after. Otherwise, 0.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Algorithm Implementation -->
+<div class="code-card">
+    <h3>Algorithm Implementation</h3>
+    <div class="code-explanation">
+We perform the same basic calculation on each period: <br>
+(Unweighted Days / Total Days) + ((Ramp Weight Factor) × (Weighted Days / Total Days))
+<br><br>
+The Ramp Weight Factor is <strong>0.75</strong> for ramp-down periods (P1, P2) and <strong>0.50</strong> for ramp-up periods (P3, P4)
+    </div>
+    <div class="code-block"><pre>
+BEG_RD_PD as P1_PD,
+(D1 / M1) + ((R1 / M1) * 0.75) as P1DAYS,
+
+BEG_ABS_PD as P2_PD,
+((R2 / M2) * 0.75) as P2DAYS,
+
+END_ABS_PD as P3_PD,
+((R3 / M3) * 0.5) + (D3 / M3) as P3DAYS,
+
+END_RU_PD as P4_PD,
+((R4 / M4) * 0.5) + (D4 / M4) as P4DAYS</pre>
+    </div>
+    <div class="code-explanation">
+        <strong>What it does:</strong> Calculates the FTE adjustment for each phase using a consistent two-part formula:
+        <br><br>
+        
+        <strong>Phase 1 (Ramp-Down Start):</strong><br>
+        <span class="highlight">Unweighted Days / Days in Month</span> — The proportion of the month before ramp-down begins (full FTE)
+        <br><strong>+</strong><br>
+        <span class="highlight">Weighted Days / Days in Month × 0.75</span> — The proportion of the month during ramp-down (capped at 14 days)
+        <br><br>
+        
+        <strong>Phase 2 (Ramp-Down Spillover):</strong><br>
+        <span class="highlight">Weighted Days / Days in Month × 0.75</span> — If ramp-down extends into the next month, the remaining days are weighted at 75%
+        <br><br>
+        
+        <strong>Phase 3 (Ramp-Up Start):</strong><br>
+        <span class="highlight">Weighted Days / Days in Month × 0.5</span> — The proportion of the month during ramp-up (capped at 28 days)
+        <br><strong>+</strong><br>
+        <span class="highlight">Unweighted Days / Days in Month</span> — The proportion of the month after ramp-up ends (full FTE)
+        <br><br>
+        
+        <strong>Phase 4 (Ramp-Up Spillover):</strong><br>
+        <span class="highlight">Weighted Days / Days in Month × 0.5</span> — If ramp-up extends into the next month, the remaining ramp days are weighted at 50%
+        <br><strong>+</strong><br>
+        <span class="highlight">Unweighted Days / Days in Month</span> — The proportion of the month after ramp-up ends (full FTE)
+        <br><br>
+        
+        This approach ensures that FTE adjustments are prorated correctly based on how many days each phase impacts in each month.
+        <br><br>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Ramp Down Start</th>
+                        <th>Ramp Down End</th>
+                        <th>P1 FTE Calculation</th>
+                        <th>P2 FTE Calculation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Employee 1</td>
+                        <td>2024-07-21</td>
+                        <td>2024-08-04</td>
+                        <td>(20/31) + ((11/31) × 0.75)</td>
+                        <td>((3/31) × 0.75)</td>
+                    </tr>
+                    <tr>
+                        <td>Employee 2</td>
+                        <td>2025-03-15</td>
+                        <td>2025-03-29</td>
+                        <td>(14/31) + ((14/31) × 0.75)</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td>Employee 3</td>
+                        <td>2025-05-08</td>
+                        <td>2025-05-22</td>
+                        <td>(7/31) + ((14/31) × 0.75)</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="note-centered">* Note that the ramp-down for Employee 1 extends into the next month, creating a non-zero P2 value.</p>
+    </div>
+</div>
+
+<!-- Unpivot -->
+<div class="code-card">
+    <h3>Unpivot and Aggregate by Employee / Month</h3>
+    <div class="code-explanation">
+        After applying the algorithm to all four phases, we wind up with a dataset that looks like this:
+    </div>
+    <br>
+    <div class="table-wrapper table-narrow">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>P1</th>
+                    <th>P1 FTE</th>
+                    <th>P2</th>
+                    <th>P2 FTE</th>
+                    <th>P3</th>
+                    <th>P3 FTE</th>
+                    <th>P4</th>
+                    <th>P4 FTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Employee 1</td>
+                    <td>202407</td><td>0.911</td>
+                    <td>202408</td><td>0.073</td>
+                    <td>202501</td><td>0.161</td>
+                    <td>202502</td><td>0.679</td>
+                </tr>
+                <tr>
+                    <td>Employee 2</td>
+                    <td>202503</td><td>0.790</td>
+                    <td>NULL</td><td>0.000</td>
+                    <td>202507</td><td>0.145</td>
+                    <td>202508</td><td>0.694</td>
+                </tr>
+                <tr>
+                    <td>Employee 3</td>
+                    <td>202505</td><td>0.565</td>
+                    <td>NULL</td><td>0.000</td>
+                    <td>202509</td><td>0.500</td>
+                    <td>NULL</td><td>0.000</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="code-block">SELECT t.*<br>
+into #FTE_TABLE<br>
+FROM #tmp<br>
+CROSS APPLY (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;VALUES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(EMPLOYEE_NAME, [P1 MONTH], [P1 FTE])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, (EMPLOYEE_NAME, [P2 MONTH], [P2 FTE])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, (EMPLOYEE_NAME, [P3 MONTH], [P3 FTE])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, (EMPLOYEE_NAME, [P4 MONTH], [P4 FTE])<br>
+) t(EMPLOYEE_NAME, MONTH, FTE)<br>
+<br>
+-- Final aggregation into Employee/Month grouping<br>
+select <br>&nbsp;&nbsp;EMPLOYEE_NAME, <br>&nbsp;&nbsp;MONTH, <br>
+&nbsp;&nbsp;SUM(FTE) as FTE<br>
+from #FTE_TABLE<br>
+group by EMPLOYEE_NAME, MONTH</div>
+    <div class="code-explanation">
+        <strong>What it does:</strong>
+        The <span class="highlight">CROSS APPLY</span> with <span class="highlight">VALUES</span> acts as an unpivot, transforming the wide format (P1, P2, P3, P4 columns) into a long format with one row per employee-month combination. This makes it easy to aggregate and report on FTE by month.
+        <div class="table-wrapper table-narrow">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Month</th>
+                        <th>FTE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Employee 1</td><td>202407</td><td>0.911</td></tr>
+                    <tr><td>Employee 1</td><td>202408</td><td>0.073</td></tr>
+                    <tr><td>Employee 1</td><td>202501</td><td>0.161</td></tr>
+                    <tr><td>Employee 1</td><td>202502</td><td>0.679</td></tr>
+                    <tr><td>Employee 2</td><td>202503</td><td>0.790</td></tr>
+                    <tr><td>Employee 2</td><td>202507</td><td>0.145</td></tr>
+                    <tr><td>Employee 2</td><td>202508</td><td>0.694</td></tr>
+                    <tr><td>Employee 3</td><td>202505</td><td>0.565</td></tr>
+                    <tr><td>Employee 3</td><td>202509</td><td>0.500</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart -->
+<div class="code-card">
+    <h3>Results Visualized</h3>
+    <div class="chart-container">
+        <canvas id="fteChart"></canvas>
+    </div>
+    <ul class="results-list">
+        <li><strong>Gradual Transitions:</strong> FTE values don't drop instantly to 0. They follow a graduated path, showing that productivity ramps down over time as employees prepare for leave.</li>
+        <li><strong>Recovery Period:</strong> FTE values climb back gradually rather than jumping to full capacity. This captures the reintegration period that naturally occurs after extended leave.</li>
+        <li><strong>Staggered Impact:</strong> Employee 1's ramp-down spans two months while the others span one month. The model adapts to different calendar alignments and leave timing.</li>
+        <li><strong>Planning Accuracy:</strong> Stakeholders can more accurately forecast capacity needs, budget requirements, and staffing gaps rather than measuring FTE as "here/not here".</li>
+    </ul>
+    <p class="code-explanation">
+        <strong>Bottom Line:</strong> The model takes in <span class="highlight">BEG_ABS</span> and <span class="highlight">END_ABS</span> dates and transforms them into a nuanced capacity forecast that accounts for employee transition periods, providing more realistic FTE counts for budgeting and resource allocation decisions.
+    </p>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('fte_adjustment.static', filename='script.js') }}"></script>
+{% endblock %}
