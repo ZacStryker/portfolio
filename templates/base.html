@@ -25,9 +25,9 @@
         <a href="{{ url_for('landing') }}" class="nav-brand">Zac Stryker</a>
         <a href="{{ url_for('landing') }}" class="topbar-link {% if request.path == '/' %}active{% endif %}">Home</a>
         <a href="{{ url_for('projects') }}" class="topbar-link {% if ns.show_sidebar %}active{% endif %}">Projects</a>
-        <a href="{{ url_for('about') }}" class="topbar-link {% if request.path == '/about/' %}active{% endif %}">About</a>
-        <a href="{{ url_for('resume') }}" class="topbar-link {% if request.path == '/resume/' %}active{% endif %}">Resume</a>
         <a href="{{ url_for('blog') }}" class="topbar-link {% if request.path == '/blog/' %}active{% endif %}">Blog</a>
+        <a href="{{ url_for('resume') }}" class="topbar-link {% if request.path == '/resume/' %}active{% endif %}">Resume</a>
+        <a href="{{ url_for('about') }}" class="topbar-link {% if request.path == '/about/' %}active{% endif %}">About</a>
         <a href="{{ url_for('contact') }}" class="topbar-link {% if request.path == '/contact/' %}active{% endif %}">Contact</a>
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
     </header>

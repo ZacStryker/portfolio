@@ -3,6 +3,12 @@ from projects import discover_and_register, PROJECT_REGISTRY
 
 BLOG_POSTS = [
     {
+        'slug': 'fte-adjustment-model',
+        'title': 'FTE Adjustment Model: Modeling Productivity Ramps During Employee Leave',
+        'date': '2026-02-05',
+        'summary': 'A four-phase algorithm for forecasting employee capacity during extended absences, with SQL implementation and interactive charts.',
+    },
+    {
         'slug': 'bi-to-ml-engineering',
         'title': 'From BI Dashboards to ML Pipelines: Changing Career Tracks',
         'date': '2026-02-03',

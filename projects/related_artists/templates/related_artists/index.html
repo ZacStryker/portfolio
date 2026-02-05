@@ -1,0 +1,724 @@
+{% extends "base.html" %}
+
+{% block title %}Related Artists - ML Hub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .search-toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 8px;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .search-box input[type="text"] {
+        flex: 1;
+        padding: 0.6rem 0.9rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: var(--surface-light);
+        color: var(--text);
+        font-family: inherit;
+    }
+
+    .search-box input[type="text"]::placeholder { color: var(--text-muted); }
+
+    .progress-container {
+        display: none;
+        margin-top: 1rem;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 28px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .progress-details {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .ra-error {
+        background: rgba(225, 29, 72, 0.15);
+        color: #f87171;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+
+    .ra-results { margin-top: 1rem; }
+
+    .ra-artist-header {
+        background: var(--surface-light);
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        border: 1px solid var(--border);
+    }
+
+    .ra-artist-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .ra-artist-header-content { flex: 1; min-width: 0; }
+
+    .ra-artist-header h2 {
+        margin: 0 0 0.25rem 0;
+        color: var(--text);
+        font-size: 1.25rem;
+    }
+
+    .ra-artist-header a {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+    .ra-artist-header a:hover { text-decoration: underline; }
+
+    .artist-profile {
+        margin-top: 0.4rem;
+        line-height: 1.4;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        max-height: 60px;
+        overflow-y: auto;
+    }
+
+    .cache-badge {
+        display: inline-block;
+        background: var(--success);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+
+    .cards-scroll-wrapper {
+        max-height: 524px;
+        overflow-y: auto;
+        margin-top: 0.75rem;
+        padding-right: 4px;
+    }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    @media (max-width: 1100px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 650px)  { .cards-grid { grid-template-columns: 1fr; } }
+
+    .artist-card {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .artist-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .card-image-container {
+        width: 120px;
+        flex-shrink: 0;
+        overflow: hidden;
+        background: rgba(0,0,0,0.15);
+        position: relative;
+    }
+
+    .card-image {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        object-position: top;
+    }
+
+    .release-overlay {
+        position: absolute;
+        bottom: 4px; right: 4px;
+        width: 40px; height: 40px;
+        border: 2px solid white;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        object-fit: cover;
+        background: rgba(0,0,0,0.15);
+    }
+
+    .release-overlay.loading,
+    .card-image.loading {
+        background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .card-content {
+        padding: 0.6rem 0.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .card-header { margin-bottom: 0.4rem; }
+
+    .ra-artist-name {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .relation-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .relation-badge.guests      { background: rgba(37,99,235,0.15); color: #60a5fa; }
+    .relation-badge.appearances  { background: rgba(168,85,247,0.15); color: #c084fc; }
+    .relation-badge.member       { background: rgba(234,88,12,0.15);  color: #fb923c; }
+
+    .ra-artist-releases {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+        flex: 1;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.4rem;
+        margin-top: auto;
+    }
+
+    .card-actions .btn-search {
+        flex: 1;
+        padding: 4px 8px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .card-actions .btn-search:hover { filter: brightness(1.1); }
+
+    .card-actions .btn-discogs {
+        flex: 1;
+        padding: 4px 8px;
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .card-actions .btn-discogs:hover { filter: brightness(1.1); }
+
+    .ra-stats {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(37,99,235,0.1);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .sort-controls {
+        display: none;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+    }
+
+    .sort-controls.visible { display: flex; }
+
+    .sort-label {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
+
+    .sort-btn {
+        padding: 4px 10px;
+        background: var(--surface-light);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+
+    .sort-btn:hover { border-color: var(--text-muted); }
+
+    .sort-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .sort-direction {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 0.75rem;
+    }
+
+    .load-more-container {
+        text-align: center;
+        margin-top: 1.5rem;
+        display: none;
+    }
+
+    .load-more-btn {
+        padding: 0.7rem 2.5rem;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-header">
+    <h1>Related Artists</h1>
+    <p class="subtitle">Discover connections between musical artists using Discogs data</p>
+</div>
+
+<div class="main-card">
+    <div class="search-toolbar">
+        <div class="search-box">
+            <input type="text" id="artistInput" placeholder="Enter artist or band name (e.g., Masayoshi Takanaka)">
+            <button id="searchBtn" class="btn-primary" onclick="searchArtist()">Search</button>
+        </div>
+        <div id="sortControls" class="sort-controls">
+            <span class="sort-label">Sort:</span>
+            <button class="sort-btn active" onclick="sortResults('name', this)">Name<span class="sort-direction"></span></button>
+            <button class="sort-btn" onclick="sortResults('year', this)">Year<span class="sort-direction"></span></button>
+            <button class="sort-btn" onclick="sortResults('role', this)">Role<span class="sort-direction"></span></button>
+        </div>
+    </div>
+
+    <div id="raError" class="ra-error"></div>
+
+    <div id="raResults" class="ra-results"></div>
+
+    <div id="loadMoreContainer" class="load-more-container">
+        <button class="btn-primary load-more-btn" onclick="loadMore()">Load More Results</button>
+    </div>
+
+    <div id="progressContainer" class="progress-container">
+        <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar" style="width: 0%;">
+                <span id="progressText">0%</span>
+            </div>
+        </div>
+        <div id="progressDetails" class="progress-details">Initializing...</div>
+    </div>
+</div>
+
+<div class="overview-card">
+    <h3>Technical Overview</h3>
+    <p>This tool queries the Discogs music database API to map collaborator networks for any artist. It examines track-level credits across an artist's discography to surface guest appearances, featured artists, and band members.</p>
+    <p>Results stream in real-time via Server-Sent Events (SSE) and are cached for 7 days. Artist and release artwork is lazy-loaded on scroll. The first 100 releases are processed per search to balance depth with responsiveness.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const BASE_URL = {{ url_for('related_artists.index') | tojson }}.replace(/\/$/, '');
+
+    let eventSource = null;
+    let currentSearchId = null;
+    let imageObserver = null;
+    let currentResultsData = null;
+    let currentSortField = 'name';
+    let currentSortDirection = 'asc';
+    let sortDirections = { name: 'asc', year: 'desc', role: 'asc' };
+    let loadedImages = {};
+    let loadedReleaseImages = {};
+    let fetchAbortController = null;
+    let streamingCollaborators = {};
+    let streamingArtistInfo = null;
+
+    function setupImageObserver() {
+        if (imageObserver) imageObserver.disconnect();
+        imageObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const img = entry.target;
+                const artistId = img.dataset.artistId;
+                const releaseId = img.dataset.releaseId;
+                if (img.classList.contains('release-overlay') && releaseId && !img.dataset.loaded) {
+                    img.dataset.loaded = 'true';
+                    loadReleaseImage(img, releaseId);
+                } else if (artistId && !img.dataset.loaded) {
+                    img.dataset.loaded = 'true';
+                    loadArtistImage(img, artistId);
+                }
+                imageObserver.unobserve(img);
+            });
+        }, { rootMargin: '50px' });
+    }
+
+    function loadArtistImage(img, artistId) {
+        if (loadedImages[artistId]) { img.src = loadedImages[artistId]; img.classList.remove('loading'); return; }
+        const releaseId = img.dataset.releaseId || '';
+        const url = releaseId ? `${BASE_URL}/fetch_image/${artistId}?release_id=${releaseId}` : `${BASE_URL}/fetch_image/${artistId}`;
+        fetch(url, { signal: fetchAbortController?.signal })
+            .then(r => r.json())
+            .then(data => { img.src = data.image; img.classList.remove('loading'); loadedImages[artistId] = data.image; })
+            .catch(err => { if (err.name === 'AbortError') return; const fb = 'https://via.placeholder.com/200x200?text=No+Image'; img.src = fb; img.classList.remove('loading'); loadedImages[artistId] = fb; });
+    }
+
+    function loadReleaseImage(img, releaseId) {
+        if (loadedReleaseImages[releaseId]) {
+            if (loadedReleaseImages[releaseId] === 'HIDE') { img.style.display = 'none'; return; }
+            img.src = loadedReleaseImages[releaseId]; img.classList.remove('loading'); return;
+        }
+        fetch(`${BASE_URL}/fetch_release_image/${releaseId}`, { signal: fetchAbortController?.signal })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error || !data.image) { img.style.display = 'none'; loadedReleaseImages[releaseId] = 'HIDE'; }
+                else { img.src = data.image; img.classList.remove('loading'); loadedReleaseImages[releaseId] = data.image; }
+            })
+            .catch(err => { if (err.name === 'AbortError') return; img.style.display = 'none'; loadedReleaseImages[releaseId] = 'HIDE'; });
+    }
+
+    function observeImages() {
+        setupImageObserver();
+        document.querySelectorAll('.card-image[data-artist-id]').forEach(img => {
+            const aid = img.dataset.artistId;
+            if (aid && loadedImages[aid]) { img.src = loadedImages[aid]; img.classList.remove('loading'); }
+            else imageObserver.observe(img);
+        });
+        document.querySelectorAll('.release-overlay[data-release-id]').forEach(img => {
+            const rid = img.dataset.releaseId;
+            if (rid && loadedReleaseImages[rid]) {
+                if (loadedReleaseImages[rid] === 'HIDE') img.style.display = 'none';
+                else { img.src = loadedReleaseImages[rid]; img.classList.remove('loading'); }
+            } else imageObserver.observe(img);
+        });
+    }
+
+    window.searchArtist = function() {
+        const artistName = document.getElementById('artistInput').value.trim();
+        if (!artistName) { showError('Please enter an artist name'); return; }
+        if (fetchAbortController) fetchAbortController.abort();
+        fetchAbortController = new AbortController();
+        if (eventSource) cancelSearch();
+
+        loadedImages = {};
+        loadedReleaseImages = {};
+        streamingCollaborators = {};
+        streamingArtistInfo = null;
+        currentResultsData = null;
+
+        const progressContainer = document.getElementById('progressContainer');
+        const error = document.getElementById('raError');
+        const results = document.getElementById('raResults');
+        const sortControls = document.getElementById('sortControls');
+
+        progressContainer.style.display = 'block';
+        error.style.display = 'none';
+        results.innerHTML = '';
+        sortControls.classList.remove('visible');
+        document.getElementById('loadMoreContainer').style.display = 'none';
+
+        currentSortField = 'name';
+        sortDirections = { name: 'asc', year: 'desc', role: 'asc' };
+        document.querySelectorAll('.sort-btn').forEach((btn, i) => {
+            btn.classList.remove('active');
+            const arrow = btn.querySelector('.sort-direction');
+            if (i === 0) { btn.classList.add('active'); if (arrow) arrow.textContent = ''; }
+            else if (arrow) arrow.textContent = '';
+        });
+
+        updateProgress(0, 'Checking cache...');
+        currentSearchId = Date.now().toString();
+
+        eventSource = new EventSource(`${BASE_URL}/search_stream?artist=${encodeURIComponent(artistName)}&search_id=${currentSearchId}`);
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'progress') {
+                updateProgress(data.progress, data.message);
+            } else if (data.type === 'artist_info') {
+                updateProgress(data.progress, data.message);
+                streamingArtistInfo = data.artist_info;
+                currentResultsData = { artist: data.artist_info.name, discogs_url: data.artist_info.url, relations: {}, total_relations: 0, schema: data.artist_info.schema, from_cache: false, limited_results: false };
+                initializeStreamingDisplay(data.artist_info);
+            } else if (data.type === 'collaborator') {
+                updateProgress(data.progress, data.message);
+                addCollaboratorToResults(data.collaborator);
+            } else if (data.type === 'paused') {
+                progressContainer.style.display = 'none';
+                document.getElementById('loadMoreContainer').style.display = 'block';
+                setTimeout(() => observeImages(), 100);
+            } else if (data.type === 'complete') {
+                eventSource.close(); eventSource = null;
+                progressContainer.style.display = 'none';
+                document.getElementById('loadMoreContainer').style.display = 'none';
+                displayResults(data.result);
+            } else if (data.type === 'error') {
+                eventSource.close(); eventSource = null;
+                progressContainer.style.display = 'none';
+                document.getElementById('loadMoreContainer').style.display = 'none';
+                showError(data.message);
+            } else if (data.type === 'cached') {
+                eventSource.close(); eventSource = null;
+                progressContainer.style.display = 'none';
+                document.getElementById('loadMoreContainer').style.display = 'none';
+                displayResults(data.result);
+            }
+        };
+
+        eventSource.onerror = function() {
+            eventSource.close(); eventSource = null;
+            progressContainer.style.display = 'none';
+            showError('Connection error occurred');
+        };
+    };
+
+    function cancelSearch() {
+        if (eventSource) { eventSource.close(); eventSource = null; }
+        if (currentSearchId) {
+            fetch(`${BASE_URL}/cancel`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_id: currentSearchId }) });
+        }
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('loadMoreContainer').style.display = 'none';
+        currentSearchId = null;
+    }
+
+    function initializeStreamingDisplay(artistInfo) {
+        const results = document.getElementById('raResults');
+        document.getElementById('sortControls').classList.add('visible');
+        let headerHtml = '';
+        if (typeof artistInfo === 'object') {
+            if (artistInfo.schema && artistInfo.schema.image) headerHtml += `<img src="${artistInfo.schema.image}" alt="${artistInfo.name}" class="ra-artist-image" onerror="this.style.display='none'">`;
+            headerHtml += `<div class="ra-artist-header-content"><h2>${artistInfo.name}</h2><a href="${artistInfo.url}" target="_blank">View on Discogs &rarr;</a>${artistInfo.schema && artistInfo.schema.description ? `<div class="artist-profile">${formatProfileText(artistInfo.schema.description)}</div>` : ''}</div>`;
+        } else {
+            headerHtml = `<div class="ra-artist-header-content"><h2>${artistInfo}</h2></div>`;
+        }
+        results.innerHTML = `<div class="ra-artist-header">${headerHtml}</div><div class="cards-scroll-wrapper"><div id="streamingCards" class="cards-grid"></div></div>`;
+        streamingCollaborators = {};
+    }
+
+    function addCollaboratorToResults(collaborator) {
+        let container = document.getElementById('streamingCards');
+        if (!container) { initializeStreamingDisplay('Artist'); container = document.getElementById('streamingCards'); }
+        const collabKey = `${collaborator.role}:${collaborator.name}`;
+        if (streamingCollaborators[collabKey]) return;
+        streamingCollaborators[collabKey] = true;
+
+        if (currentResultsData) {
+            if (!currentResultsData.relations[collaborator.role]) currentResultsData.relations[collaborator.role] = [];
+            currentResultsData.relations[collaborator.role].push({ name: collaborator.name, id: collaborator.id, release_id: collaborator.release_id, releases: collaborator.releases, image: collaborator.image || '' });
+            currentResultsData.total_relations++;
+        }
+
+        const escapedName = collaborator.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const hasImage = collaborator.id ? `data-artist-id="${collaborator.id}"` : '';
+        const hasRelease = collaborator.release_id ? `data-release-id="${collaborator.release_id}"` : '';
+        const relationClass = collaborator.role.toLowerCase().replace(/\s+/g, '-');
+        container.insertAdjacentHTML('beforeend', `
+            <div class="artist-card">
+                <div class="card-image-container">
+                    <img src="" alt="${collaborator.name}" class="card-image loading" ${hasImage} ${hasRelease} onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'; this.classList.remove('loading')">
+                    ${collaborator.release_id ? `<img src="" alt="Release art" class="release-overlay loading" data-release-id="${collaborator.release_id}" onerror="this.src='https://via.placeholder.com/50x50?text=No+Art'; this.classList.remove('loading')">` : ''}
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <div class="ra-artist-name">${collaborator.name}</div>
+                        <span class="relation-badge ${relationClass}">${collaborator.role}</span>
+                    </div>
+                    <div class="ra-artist-releases">${collaborator.releases}</div>
+                    <div class="card-actions">
+                        <button class="btn-search" onclick="searchForArtist('${escapedName}')">Search</button>
+                        <a href="https://www.discogs.com/artist/${collaborator.id}" target="_blank" class="btn-discogs">Discogs</a>
+                    </div>
+                </div>
+            </div>
+        `);
+        setupImageObserver();
+    }
+
+    function updateProgress(percent, message) {
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressText').textContent = Math.round(percent) + '%';
+        document.getElementById('progressDetails').textContent = message;
+    }
+
+    function showError(message) {
+        const el = document.getElementById('raError');
+        el.textContent = message;
+        el.style.display = 'block';
+    }
+
+    window.sortResults = function(field, buttonElement) {
+        if (!currentResultsData) return;
+        if (currentSortField === field) sortDirections[field] = sortDirections[field] === 'asc' ? 'desc' : 'asc';
+        currentSortField = field;
+        currentSortDirection = sortDirections[field];
+        document.querySelectorAll('.sort-btn').forEach(btn => { btn.classList.remove('active'); const a = btn.querySelector('.sort-direction'); if (a) a.textContent = ''; });
+        buttonElement.classList.add('active');
+        const arrow = buttonElement.querySelector('.sort-direction');
+        if (arrow) arrow.textContent = currentSortDirection === 'asc' ? '\u2191' : '\u2193';
+        displayResults(currentResultsData, false);
+    };
+
+    window.loadMore = function() {
+        document.getElementById('loadMoreContainer').style.display = 'none';
+        document.getElementById('progressContainer').style.display = 'block';
+        fetch(`${BASE_URL}/resume`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_id: currentSearchId }), signal: fetchAbortController?.signal }).catch(() => {});
+    };
+
+    function getLatestYear(releases) {
+        const m = releases.match(/\((\d{4})\)/g);
+        if (!m || !m.length) return 0;
+        return Math.max(...m.map(s => { const y = s.match(/\d{4}/); return y ? parseInt(y[0]) : 0; }));
+    }
+
+    function getRoleOrder(role) { return { Member: 1, Guests: 2, Appearances: 3 }[role] || 999; }
+
+    function formatProfileText(text) {
+        if (!text) return '';
+        return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function displayResults(data, isNewSearch) {
+        if (isNewSearch !== false) currentResultsData = data;
+        const results = document.getElementById('raResults');
+        const sortControls = document.getElementById('sortControls');
+        let html = '<div class="ra-artist-header">';
+        if (data.schema && data.schema.image) html += `<img src="${data.schema.image}" alt="${data.artist}" class="ra-artist-image" onerror="this.style.display='none'">`;
+        html += `<div class="ra-artist-header-content"><h2>${data.artist}${data.from_cache ? '<span class="cache-badge">Cached</span>' : ''}</h2><a href="${data.discogs_url}" target="_blank">View on Discogs &rarr;</a>${data.schema && data.schema.description ? `<div class="artist-profile">${formatProfileText(data.schema.description)}</div>` : ''}</div></div>`;
+
+        if (!Object.keys(data.relations).length) {
+            html += '<p style="color:var(--text-muted)">No related artists found in the Discogs database.</p>';
+            sortControls.classList.remove('visible');
+        } else {
+            sortControls.classList.add('visible');
+            const all = [];
+            for (const [type, artists] of Object.entries(data.relations)) {
+                for (const a of artists) all.push({ ...a, relationType: type, latestYear: getLatestYear(a.releases || '') });
+            }
+            all.sort((a, b) => {
+                let c = 0;
+                if (currentSortField === 'name') c = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+                else if (currentSortField === 'year') c = b.latestYear - a.latestYear;
+                else if (currentSortField === 'role') { c = getRoleOrder(a.relationType) - getRoleOrder(b.relationType); if (!c) c = a.name.toLowerCase().localeCompare(b.name.toLowerCase()); }
+                return currentSortDirection === 'asc' ? c : -c;
+            });
+
+            html += '<div class="cards-scroll-wrapper"><div id="streamingCards" class="cards-grid">';
+            for (const artist of all) {
+                const esc = artist.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const hasImage = artist.id ? `data-artist-id="${artist.id}"` : '';
+                const hasRelease = artist.release_id ? `data-release-id="${artist.release_id}"` : '';
+                const cached = artist.id && loadedImages[artist.id];
+                const imgClass = cached ? 'card-image' : (artist.id ? 'card-image loading' : 'card-image');
+                const imgSrc = cached ? cached : (artist.id ? '' : 'https://via.placeholder.com/200x200?text=No+Image');
+                const relClass = artist.relationType.toLowerCase().replace(/\s+/g, '-');
+                html += `
+                    <div class="artist-card">
+                        <div class="card-image-container">
+                            <img src="${imgSrc}" alt="${artist.name}" class="${imgClass}" ${hasImage} ${hasRelease} onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'; this.classList.remove('loading')">
+                            ${artist.release_id ? `<img src="${loadedReleaseImages[artist.release_id] || ''}" alt="Release art" class="release-overlay ${loadedReleaseImages[artist.release_id] ? '' : 'loading'}" data-release-id="${artist.release_id}" onerror="this.src='https://via.placeholder.com/50x50?text=No+Art'; this.classList.remove('loading')">` : ''}
+                        </div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="ra-artist-name">${artist.name}</div>
+                                <span class="relation-badge ${relClass}">${artist.relationType}</span>
+                            </div>
+                            ${artist.releases ? `<div class="ra-artist-releases">${artist.releases}</div>` : ''}
+                            <div class="card-actions">
+                                <button class="btn-search" onclick="searchForArtist('${esc}')">Search</button>
+                                <a href="https://www.discogs.com/artist/${artist.id}" target="_blank" class="btn-discogs">Discogs</a>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+            html += '</div></div>';
+            html += `<div class="ra-stats">Found ${data.total_relations} related artist${data.total_relations !== 1 ? 's' : ''} across ${Object.keys(data.relations).length} relationship type${Object.keys(data.relations).length !== 1 ? 's' : ''}${data.from_cache ? ' (loaded from cache)' : ''}${data.limited_results ? '<br><em>Results limited to first 100 releases for performance</em>' : ''}</div>`;
+        }
+        results.innerHTML = html;
+        setTimeout(() => observeImages(), 100);
+    }
+
+    window.searchForArtist = function(artistName) {
+        document.getElementById('artistInput').value = artistName;
+        searchArtist();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    document.getElementById('artistInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchArtist();
+    });
+})();
+</script>
+{% endblock %}
