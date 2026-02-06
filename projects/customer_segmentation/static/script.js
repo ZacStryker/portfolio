@@ -306,18 +306,26 @@
                     sumF += members[si].frequency;
                     sumM += members[si].monetary;
                 }
+                var avgR = sumR / members.length;
+                var avgF = sumF / members.length;
+                var avgM = sumM / members.length;
                 clusterStats.push({
                     cluster: ci,
-                    name: CLUSTER_NAMES[ci % CLUSTER_NAMES.length],
+                    name: '',
                     count: members.length,
-                    avgRecency: Math.round(sumR / members.length),
-                    avgFrequency: Math.round(sumF / members.length),
-                    avgMonetary: Math.round(sumM / members.length),
-                    totalValue: Math.round(sumM)
+                    avgRecency: Math.round(avgR),
+                    avgFrequency: Math.round(avgF),
+                    avgMonetary: Math.round(avgM),
+                    totalValue: Math.round(sumM),
+                    rfmScore: (avgM * avgF) / Math.max(avgR, 1)
                 });
             }
         }
-        clusterStats.sort(function (a, b) { return b.totalValue - a.totalValue; });
+        // Assign names by RFM score so best cluster = "Champions"
+        clusterStats.sort(function (a, b) { return b.rfmScore - a.rfmScore; });
+        for (var ni = 0; ni < clusterStats.length; ni++) {
+            clusterStats[ni].name = CLUSTER_NAMES[ni % CLUSTER_NAMES.length];
+        }
 
         updateMetrics();
         renderScatter();
@@ -334,10 +342,20 @@
         elStepTotal.textContent = history.length;
     }
 
+    // Build a lookup from cluster index → assigned name
+    function clusterNameMap() {
+        var map = {};
+        for (var i = 0; i < clusterStats.length; i++) {
+            map[clusterStats[i].cluster] = clusterStats[i].name;
+        }
+        return map;
+    }
+
     // ── Scatter chart ─────────────────────────────────────────────
     function renderScatter() {
         var state = history[currentStep] || { centroids: [], assignments: [] };
         var labels = getMetricLabels();
+        var nameMap = clusterNameMap();
 
         // Build datasets per cluster
         var datasets = [];
@@ -352,7 +370,7 @@
                 }
             }
             datasets.push({
-                label: CLUSTER_NAMES[ci % CLUSTER_NAMES.length],
+                label: nameMap[ci] || ('Cluster ' + (ci + 1)),
                 data: pts,
                 backgroundColor: COLORS[ci] + 'B3',
                 borderColor: COLORS[ci],
@@ -405,7 +423,8 @@
                                 title: function (items) {
                                     var d = items[0].raw;
                                     if (!d.id) return '';
-                                    return 'Customer #' + d.id + ' \u2022 ' + CLUSTER_NAMES[d.cluster % CLUSTER_NAMES.length];
+                                    var nm = clusterNameMap();
+                                    return 'Customer #' + d.id + ' \u2022 ' + (nm[d.cluster] || 'Cluster ' + (d.cluster + 1));
                                 },
                                 label: function (ctx) {
                                     var d = ctx.raw;
