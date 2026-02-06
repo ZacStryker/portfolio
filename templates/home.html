@@ -9,8 +9,11 @@
         <p class="subtitle">Interactive machine learning projects</p>
     </header>
 
+    {% set nav_groups = ['Machine Learning', 'Data & Visualization'] %}
+    {% for group in nav_groups %}
+    <h2 class="project-group-heading">{{ group }}</h2>
     <div class="project-grid">
-        {% for project in projects %}
+        {% for project in projects if project.nav_group == group %}
         <a href="/{{ project.id }}/" class="project-card" style="--accent: {{ project.color }}">
             <div class="card-accent"></div>
             <div class="card-body">
@@ -27,5 +30,6 @@
         </a>
         {% endfor %}
     </div>
+    {% endfor %}
 </div>
 {% endblock %}

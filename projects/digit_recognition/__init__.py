@@ -7,6 +7,7 @@ PROJECT_META = {
     'icon': 'draw',
     'color': '#2563eb',
     'category': 'Computer Vision',
+    'nav_group': 'Machine Learning',
     'tags': ['tensorflow.js', 'neural network', 'canvas'],
 }
 

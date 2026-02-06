@@ -8,6 +8,7 @@ PROJECT_META = {
     'icon': 'text',
     'color': '#8b5cf6',
     'category': 'Natural Language Processing',
+    'nav_group': 'Machine Learning',
     'tags': ['nlp', 'bart', 'textrank', 'extractive', 'abstractive'],
 }
 

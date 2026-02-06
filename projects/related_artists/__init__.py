@@ -15,6 +15,7 @@ PROJECT_META = {
     'icon': 'music',
     'color': '#e11d48',
     'category': 'Data Exploration',
+    'nav_group': 'Data & Visualization',
     'tags': ['discogs', 'music', 'graph', 'api', 'streaming'],
 }
 

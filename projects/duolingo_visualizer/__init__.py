@@ -10,6 +10,7 @@ PROJECT_META = {
     'icon': 'language',
     'color': '#58cc02',
     'category': 'Data Visualization',
+    'nav_group': 'Data & Visualization',
     'tags': ['chart.js', 'data visualization', 'duolingo'],
 }
 

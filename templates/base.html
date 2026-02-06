@@ -57,11 +57,15 @@
         {% if ns.show_sidebar %}
         <nav class="sidebar">
             <div class="sidebar-nav">
-                {% for project in projects %}
+                {% set nav_groups = ['Machine Learning', 'Data & Visualization'] %}
+                {% for group in nav_groups %}
+                <div class="sidebar-group-label">{{ group }}</div>
+                {% for project in projects if project.nav_group == group %}
                 <a href="/{{ project.id }}/" class="sidebar-link {% if request.path.startswith('/' + project.id) %}active{% endif %}">
                     <span class="sidebar-dot" style="background: {{ project.color }}"></span>
                     {{ project.name }}
                 </a>
+                {% endfor %}
                 {% endfor %}
             </div>
         </nav>

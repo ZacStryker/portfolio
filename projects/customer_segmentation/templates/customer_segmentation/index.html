@@ -1,0 +1,612 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Segmentation - ML Hub{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+    /* --- Metrics badges --- */
+    .metrics-row {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .metric-badge {
+        padding: 0.5rem 1.25rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .metric-badge .label {
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+
+    .metric-badge .value {
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .metric-badge.cyan {
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    .metric-badge.cyan .value { color: #00d4ff; }
+
+    .metric-badge.pink {
+        background: rgba(255, 51, 102, 0.1);
+        border: 1px solid rgba(255, 51, 102, 0.3);
+    }
+    .metric-badge.pink .value { color: #ff3366; }
+
+    .metric-badge.yellow {
+        background: rgba(255, 204, 0, 0.1);
+        border: 1px solid rgba(255, 204, 0, 0.3);
+    }
+    .metric-badge.yellow .value { color: #ffcc00; }
+
+    /* --- Controls --- */
+    .controls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--surface-light);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .control-group label.control-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #00d4ff;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.75rem;
+    }
+
+    .k-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+
+    .k-display .k-val {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #00d4ff;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .k-display .k-bound {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        outline: none;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        background: linear-gradient(90deg, #00d4ff, #0077ff);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #00d4ff;
+        cursor: pointer;
+        border: 2px solid var(--surface);
+    }
+
+    .metric-btn {
+        display: block;
+        width: 100%;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .metric-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .metric-btn.active {
+        background: rgba(0, 212, 255, 0.15);
+        border-color: rgba(0, 212, 255, 0.5);
+        color: #00d4ff;
+    }
+
+    .metric-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .option-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: var(--text);
+    }
+
+    .option-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .options-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn-regenerate {
+        padding: 0.7rem 1.25rem;
+        background: linear-gradient(135deg, #00d4ff, #0077ff);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        width: 100%;
+    }
+
+    .btn-regenerate:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* --- Content grid (scatter + side charts) --- */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .viz-panel {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .viz-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .viz-panel-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #00d4ff;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .step-indicator {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .step-indicator span {
+        color: #00d4ff;
+        font-weight: 700;
+    }
+
+    .chart-wrap {
+        position: relative;
+        height: 420px;
+    }
+
+    .chart-wrap-sm {
+        position: relative;
+        height: 180px;
+    }
+
+    /* --- Animation controls --- */
+    .anim-controls {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--surface);
+        border-radius: 10px;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .anim-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .anim-btn.play { background: linear-gradient(135deg, #10b981, #059669); }
+    .anim-btn.pause { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .anim-btn.reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .anim-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .speed-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 1rem;
+    }
+
+    .speed-control .speed-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .speed-control input[type="range"] {
+        width: 80px;
+        height: 4px;
+    }
+
+    .speed-control .speed-value {
+        font-size: 0.7rem;
+        color: #00d4ff;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* --- Side panel section divider --- */
+    .side-section-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .side-section-title.pink { color: #ff3366; }
+    .side-section-title.cyan { color: #00d4ff; }
+
+    /* --- Cluster stats --- */
+    .cluster-stats-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .cluster-stats-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #00d4ff;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .cluster-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .cluster-card {
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: transform 0.2s;
+    }
+
+    .cluster-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .cluster-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .cluster-card-name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .cluster-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .cluster-card-body {
+        font-size: 0.75rem;
+        color: var(--text);
+        line-height: 2;
+    }
+
+    .cluster-row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .cluster-row .row-label {
+        color: var(--text-muted);
+    }
+
+    .cluster-row .row-value {
+        font-weight: 600;
+    }
+
+    .cluster-total-row {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    /* --- Info tooltips --- */
+    .info-tip {
+        position: relative;
+        display: inline-block;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+
+    .info-tip .tip-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(0, 212, 255, 0.2);
+        border: 1px solid rgba(0, 212, 255, 0.5);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: help;
+        font-size: 11px;
+        font-weight: 700;
+        color: #00d4ff;
+        line-height: 1;
+    }
+
+    .info-tip .tip-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        background: var(--surface);
+        border: 1px solid rgba(0, 212, 255, 0.5);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        box-shadow: 0 8px 32px var(--shadow);
+        z-index: 1000;
+        min-width: 260px;
+        max-width: 340px;
+        pointer-events: none;
+        font-size: 0.75rem;
+        line-height: 1.6;
+        color: var(--text-muted);
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    .info-tip:hover .tip-content {
+        display: block;
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 900px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .controls-grid {
+            grid-template-columns: 1fr;
+        }
+        .cluster-stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="project-header">
+    <h1>Customer Segmentation</h1>
+    <p class="subtitle">Interactive K-means++ clustering with RFM analysis</p>
+</div>
+
+<div class="main-card">
+    <!-- Metrics badges -->
+    <div class="metrics-row">
+        <div class="metric-badge cyan">
+            <span class="label">Iterations:</span>
+            <span class="value" id="metricIterations">0</span>
+            <span class="info-tip">
+                <span class="tip-icon">?</span>
+                <span class="tip-content">Number of iterations the K-means algorithm took to converge. Fewer iterations with K-means++ initialization indicates better starting centroids.</span>
+            </span>
+        </div>
+        <div class="metric-badge pink">
+            <span class="label">Silhouette:</span>
+            <span class="value" id="metricSilhouette">0.000</span>
+            <span class="info-tip">
+                <span class="tip-icon">?</span>
+                <span class="tip-content">Silhouette score ranges from -1 to 1, measuring how well-defined the clusters are. Scores above 0.5 indicate good clustering, 0.3-0.5 is acceptable, and below 0.3 suggests overlapping clusters.</span>
+            </span>
+        </div>
+        <div class="metric-badge yellow">
+            <span class="label">Algorithm:</span>
+            <span class="value" id="metricAlgorithm">K-MEANS++</span>
+            <span class="info-tip">
+                <span class="tip-icon">?</span>
+                <span class="tip-content">K-means++ uses smart initialization by selecting starting centroids that are far apart, leading to faster convergence and better quality. Random initialization picks centroids randomly, which can lead to suboptimal results.</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-grid">
+        <div class="control-group">
+            <label class="control-label">Clusters (K)</label>
+            <input type="range" id="kSlider" min="2" max="8" value="4">
+            <div class="k-display">
+                <span class="k-bound">2</span>
+                <span class="k-val" id="kValue">4</span>
+                <span class="k-bound">8</span>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                Feature Space
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Feature space determines which customer attributes are used for clustering. Different combinations reveal different segmentation patterns.</span>
+                </span>
+            </label>
+            <div class="metric-btns">
+                <button class="metric-btn active" data-metric="monetary-frequency">Monetary &times; Frequency</button>
+                <button class="metric-btn" data-metric="recency-monetary">Recency &times; Monetary</button>
+                <button class="metric-btn" data-metric="recency-frequency">Recency &times; Frequency</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">Options</label>
+            <div class="options-col">
+                <label class="option-row">
+                    <input type="checkbox" id="chkKMeansPP" checked>
+                    <span>Use K-means++ Initialization</span>
+                </label>
+                <label class="option-row">
+                    <input type="checkbox" id="chkCentroids" checked>
+                    <span>Show Centroids</span>
+                </label>
+                <button class="btn-regenerate" id="btnRegenerate">Regenerate Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main charts grid -->
+    <div class="content-grid">
+        <!-- Main scatter -->
+        <div class="viz-panel">
+            <div class="viz-panel-header">
+                <span class="viz-panel-title">
+                    Cluster Visualization
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Each point is a customer colored by cluster. Cross marks show cluster centroids. Watch points migrate between clusters as the algorithm iterates.</span>
+                    </span>
+                </span>
+                <span class="step-indicator">Step: <span id="stepCurrent">1</span> / <span id="stepTotal">1</span></span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="scatterChart"></canvas>
+            </div>
+
+            <!-- Animation controls -->
+            <div class="anim-controls">
+                <button class="anim-btn play" id="btnPlay">&#9654; Play</button>
+                <button class="anim-btn pause" id="btnPause" disabled>&#10074;&#10074; Pause</button>
+                <button class="anim-btn reset" id="btnReset">&#9632; Reset</button>
+                <div class="speed-control">
+                    <span class="speed-label">Speed:</span>
+                    <input type="range" id="speedSlider" min="100" max="1000" step="100" value="500">
+                    <span class="speed-value" id="speedValue">2.0x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side: convergence + elbow -->
+        <div class="viz-panel">
+            <div class="viz-panel-title">
+                Convergence History
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Inertia measures total within-cluster sum of squared distances. As K-means iterates, inertia decreases until convergence. A steeper drop indicates faster optimization.</span>
+                </span>
+            </div>
+            <div class="chart-wrap-sm">
+                <canvas id="convergenceChart"></canvas>
+            </div>
+
+            <div class="side-section-title pink">
+                Elbow Method
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">The elbow method helps determine optimal K. The "elbow" point where the curve bends indicates diminishing returns from adding more clusters. Silhouette scores measure cluster quality: higher is better.</span>
+                </span>
+            </div>
+            <div class="chart-wrap-sm">
+                <canvas id="elbowChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cluster stats -->
+    <div class="cluster-stats-header">
+        <h3>
+            RFM Cluster Statistics
+            <span class="info-tip">
+                <span class="tip-icon">?</span>
+                <span class="tip-content">RFM (Recency, Frequency, Monetary) analysis segments customers based on purchase recency, purchase frequency, and total spending. Each cluster represents a distinct customer segment.</span>
+            </span>
+        </h3>
+    </div>
+    <div class="cluster-stats-grid" id="clusterStats"></div>
+</div>
+
+<div class="overview-card">
+    <h3>Technical Overview</h3>
+    <p><strong>K-means++</strong> improves standard K-means by using a smart centroid initialization strategy. Instead of choosing random starting points, it selects centroids that are well-spread across the data, leading to faster convergence and more consistent results.</p>
+    <p><strong>Silhouette Score</strong> measures how similar a data point is to its own cluster compared to other clusters. Values range from -1 to 1, where higher scores indicate better-defined, well-separated clusters.</p>
+    <p><strong>Elbow Method</strong> plots inertia (within-cluster sum of squares) against the number of clusters K. The optimal K is at the "elbow" where adding more clusters yields diminishing returns.</p>
+    <p><strong>RFM Analysis</strong> (Recency, Frequency, Monetary) is a customer segmentation technique that groups customers by purchase recency, frequency, and total spend to identify high-value segments and at-risk customers.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('customer_segmentation.static', filename='script.js') }}"></script>
+{% endblock %}
