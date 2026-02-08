@@ -4,83 +4,10 @@
 
 {% block head_extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<style>
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: var(--surface-light);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        transition: transform 0.2s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-3px);
-    }
-
-    .stat-label {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-
-    .stat-value {
-        color: var(--text);
-        font-size: 1.8rem;
-        font-weight: 700;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .stat-unit {
-        color: var(--text-muted);
-        font-size: 0.45em;
-        margin-left: 4px;
-    }
-
-    .viz-card {
-        background: var(--surface-light);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.5rem;
-    }
-
-    .viz-title {
-        font-size: 1.15rem;
-        color: var(--text);
-        margin-bottom: 1.25rem;
-        font-weight: 600;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 300px;
-    }
-
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 {% endblock %}
 
 {% block content %}
+<div class="page-duolingo">
 <div class="project-header">
     <h1>Duolingo Visualizer</h1>
     <p class="subtitle">Dutch language learning progress dashboard</p>
@@ -95,6 +22,7 @@
             <canvas id="lessonsChart"></canvas>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
