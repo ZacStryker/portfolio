@@ -897,6 +897,15 @@ button:disabled, .btn:disabled {
     line-height: 1.6;
 }
 
+.gantt-container {
+    position: relative;
+    height: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
 @media (max-width: 768px) {
     .entry-header {
         flex-direction: column;
@@ -905,6 +914,11 @@ button:disabled, .btn:disabled {
 
     .skills-grid {
         grid-template-columns: 1fr;
+    }
+
+    .gantt-container {
+        height: 360px;
+        padding: 1rem 0.5rem;
     }
 }
 

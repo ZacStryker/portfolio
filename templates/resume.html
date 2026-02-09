@@ -2,6 +2,10 @@
 
 {% block title %}Resume - Zac Stryker{% endblock %}
 
+{% block head_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="resume">
     <div class="resume-header">
@@ -82,6 +86,13 @@
     </div>
 
     <div class="resume-section">
+        <h2>Skills Timeline</h2>
+        <div class="gantt-container">
+            <canvas id="skillsGantt"></canvas>
+        </div>
+    </div>
+
+    <div class="resume-section">
         <h2>Skills</h2>
         <div class="skills-grid">
             <div class="skill-group">
@@ -103,4 +114,116 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    var style = getComputedStyle(document.documentElement);
+    var textMuted = style.getPropertyValue('--text-muted').trim();
+    var border = style.getPropertyValue('--border').trim();
+
+    var categories = [
+        { label: 'Tech Support',           start: 2013, end: 2026, color: '#94a3b8' },
+        { label: 'Front-End',              start: 2017, end: 2026, color: '#a78bfa' },
+        { label: 'SQL & Databases',        start: 2018, end: 2026, color: '#f59e0b' },
+        { label: 'Data Analytics',         start: 2020, end: 2026, color: '#10b981' },
+        { label: 'Data Visualization',     start: 2020, end: 2026, color: '#06b6d4' },
+        { label: 'Linux & Server Admin',   start: 2020, end: 2026, color: '#64748b' },
+        { label: 'Business Intelligence',  start: 2021, end: 2026, color: '#8b5cf6' },
+        { label: 'ETL & Data Engineering', start: 2021, end: 2026, color: '#ec4899' },
+        { label: 'Back-End',              start: 2022, end: 2026, color: '#3b82f6' },
+        { label: 'Cloud & Automation',     start: 2023, end: 2026, color: '#f97316' },
+        { label: 'Machine Learning',       start: 2025, end: 2026, color: '#ef4444' }
+    ];
+
+    var labels = categories.map(function(c) { return c.label; });
+    var data = categories.map(function(c) { return [c.start, c.end]; });
+    var colors = categories.map(function(c) { return c.color; });
+
+    var barLabelsPlugin = {
+        id: 'barLabels',
+        afterDatasetsDraw: function(chart) {
+            var ctx = chart.ctx;
+            var meta = chart.getDatasetMeta(0);
+            ctx.save();
+            ctx.font = "600 11px 'JetBrains Mono', monospace";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            meta.data.forEach(function(bar, i) {
+                var d = categories[i];
+                var yrs = d.end - d.start;
+                var label = yrs === 1 ? '1 Year' : yrs + ' Years';
+                var cx = (bar.x + bar.base) / 2;
+                var cy = bar.y;
+                var barWidth = Math.abs(bar.x - bar.base);
+                var textWidth = ctx.measureText(label).width;
+                if (textWidth + 8 > barWidth) {
+                    ctx.fillStyle = textMuted;
+                    ctx.textAlign = 'left';
+                    ctx.fillText(label, bar.x + 6, cy);
+                } else {
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(label, cx, cy);
+                }
+            });
+            ctx.restore();
+        }
+    };
+
+    new Chart(document.getElementById('skillsGantt'), {
+        type: 'bar',
+        plugins: [barLabelsPlugin],
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderRadius: 4,
+                borderSkipped: false,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            var v = ctx.raw;
+                            return v[0] + ' \u2013 ' + (v[1] >= 2026 ? 'Present' : v[1]);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min: 2012,
+                    max: 2027,
+                    ticks: {
+                        stepSize: 1,
+                        color: textMuted,
+                        font: { family: "'JetBrains Mono', monospace", size: 11 },
+                        callback: function(val) {
+                            if (val >= 2013 && val <= 2026) return val;
+                            return '';
+                        }
+                    },
+                    grid: { color: border, drawBorder: false }
+                },
+                y: {
+                    ticks: {
+                        color: textMuted,
+                        font: { family: "'Outfit', sans-serif", size: 12, weight: '500' }
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+})();
+</script>
 {% endblock %}
