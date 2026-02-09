@@ -1905,7 +1905,7 @@ button:disabled, .btn:disabled {
     background: var(--surface-light);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 0.75rem 1.5rem;
     text-align: center;
     transition: transform 0.2s ease;
 }
@@ -1919,13 +1919,13 @@ button:disabled, .btn:disabled {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     font-weight: 600;
 }
 
 .stat-value {
     color: var(--text);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
 }
@@ -1941,6 +1941,10 @@ button:disabled, .btn:disabled {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
+}
+
+.viz-card + .viz-card {
+    margin-top: 1.5rem;
 }
 
 .viz-title {
@@ -1965,6 +1969,52 @@ button:disabled, .btn:disabled {
     .stats-grid {
         grid-template-columns: 1fr;
     }
+}
+
+.heatmap-container {
+    position: relative;
+    overflow-x: auto;
+}
+
+.heatmap-container canvas {
+    display: block;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+}
+
+.heatmap-legend-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 0 4px;
+}
+
+.heatmap-legend-cell {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+}
+
+.heatmap-tooltip {
+    display: none;
+    position: absolute;
+    padding: 0.4rem 0.65rem;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 /* --- Related Artists --- */
