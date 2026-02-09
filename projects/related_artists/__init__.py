@@ -136,7 +136,7 @@ def extract_collaborators_async(artist_name, progress_callback, search_id, pause
         for page in results:
             if page.name.lower() == artist_name.lower() and page.name.lower() != 'various':
                 artist_id = page.id
-                artist_url = page.url
+                artist_url = 'https://www.discogs.com' + page.url
                 if hasattr(page, 'data') and 'cover_image' in page.data:
                     main_artist_image = page.data['cover_image']
                 break
@@ -144,7 +144,7 @@ def extract_collaborators_async(artist_name, progress_callback, search_id, pause
         if not artist_id:
             if len(results) > 0:
                 artist_id = results[0].id
-                artist_url = results[0].url
+                artist_url = 'https://www.discogs.com' + results[0].url
                 if hasattr(results[0], 'data') and 'cover_image' in results[0].data:
                     main_artist_image = results[0].data['cover_image']
             else:
