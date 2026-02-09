@@ -1905,7 +1905,7 @@ button:disabled, .btn:disabled {
     background: var(--surface-light);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 0.75rem 1.5rem;
     text-align: center;
     transition: transform 0.2s ease;
 }
@@ -1919,13 +1919,13 @@ button:disabled, .btn:disabled {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     font-weight: 600;
 }
 
 .stat-value {
     color: var(--text);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
 }
@@ -1941,6 +1941,10 @@ button:disabled, .btn:disabled {
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
+}
+
+.viz-card + .viz-card {
+    margin-top: 1.5rem;
 }
 
 .viz-title {
@@ -1967,7 +1971,132 @@ button:disabled, .btn:disabled {
     }
 }
 
+.heatmap-container {
+    position: relative;
+    overflow-x: auto;
+}
+
+.heatmap-container canvas {
+    display: block;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+}
+
+.heatmap-legend-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 0 4px;
+}
+
+.heatmap-legend-cell {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+}
+
+.heatmap-tooltip {
+    display: none;
+    position: absolute;
+    padding: 0.4rem 0.65rem;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
 /* --- Related Artists --- */
+
+.quick-search-header {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.quick-search-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.quick-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface-light);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.quick-card img {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    flex-shrink: 0;
+}
+
+.quick-card-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.quick-card-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.btn-quick-search {
+    background: transparent;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    border-radius: 6px;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+.btn-quick-search:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+}
+
+@media (max-width: 650px) {
+    .quick-search-cards { flex-direction: column; }
+}
 
 .search-toolbar {
     display: flex;

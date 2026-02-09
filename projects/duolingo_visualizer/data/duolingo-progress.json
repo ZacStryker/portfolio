@@ -3580,5 +3580,29 @@
     "session_time": 0,
     "streak": 94,
     "xp_today": 0
+  },
+  "2026/02/04": {
+    "number_of_sessions": 4,
+    "session_time": 895,
+    "streak": 95,
+    "xp_today": 276
+  },
+  "2026/02/05": {
+    "number_of_sessions": 1,
+    "session_time": 359,
+    "streak": 96,
+    "xp_today": 126
+  },
+  "2026/02/06": {
+    "number_of_sessions": 1,
+    "session_time": 517,
+    "streak": 97,
+    "xp_today": 42
+  },
+  "2026/02/07": {
+    "number_of_sessions": 2,
+    "session_time": 782,
+    "streak": 98,
+    "xp_today": 134
   }
 }

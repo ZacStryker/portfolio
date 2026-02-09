@@ -11,7 +11,7 @@
 <div class="main-card">
     <div class="search-toolbar">
         <div class="search-box">
-            <input type="text" id="artistInput" placeholder="Enter artist or band name (e.g., Masayoshi Takanaka)">
+            <input type="text" id="artistInput" placeholder="Enter artist or band name (e.g., The Red Hot Chili Peppers)">
             <button id="searchBtn" class="btn-primary" onclick="searchArtist()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
         </div>
         <div id="sortControls" class="sort-controls">
@@ -19,6 +19,31 @@
             <button class="sort-btn active" onclick="sortResults('name', this)">Name<span class="sort-direction"></span></button>
             <button class="sort-btn" onclick="sortResults('year', this)">Year<span class="sort-direction"></span></button>
             <button class="sort-btn" onclick="sortResults('role', this)">Role<span class="sort-direction"></span></button>
+        </div>
+    </div>
+
+    <h3 id="quickSearchHeader" class="quick-search-header">Quick Search</h3>
+    <div id="quickSearchCards" class="quick-search-cards">
+        <div class="quick-card" onclick="searchForArtist('Plini')">
+            <img src="https://i.discogs.com/71ujIn67FNG550m6r76MX6PIn_VRwcJkElQQvRJZRkA/rs:fit/g:sm/q:90/h:400/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9BLTM1MTE0/OTYtMTQ3Mjk1MzE0/OS0yNzQwLmpwZWc.jpeg" alt="Plini">
+            <div class="quick-card-info">
+                <span class="quick-card-name">Plini</span>
+                <button class="btn-quick-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+            </div>
+        </div>
+        <div class="quick-card" onclick="searchForArtist('Polyphia')">
+            <img src="https://i.discogs.com/Lkg0kUTGwqc92f4_OvCu5fYbrgN5gTesx79SaLj0Az4/rs:fit/g:sm/q:90/h:531/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9BLTQwNjc2/MTgtMTY2NzMxNjcz/Ny03NzMyLmpwZWc.jpeg" alt="Polyphia">
+            <div class="quick-card-info">
+                <span class="quick-card-name">Polyphia</span>
+                <button class="btn-quick-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+            </div>
+        </div>
+        <div class="quick-card" onclick="searchForArtist('Yvette Young')">
+            <img src="https://i.discogs.com/SyRCM1g-08QxyJ6GIiiNdzyPm9FZ-uOWYXSaGdWGLk8/rs:fit/g:sm/q:40/h:150/w:150/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9BLTM5MDky/OTEtMTU4NTY1MTE0/NC03NTkxLmpwZWc.jpeg" alt="Yvette Young">
+            <div class="quick-card-info">
+                <span class="quick-card-name">Yvette Young</span>
+                <button class="btn-quick-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+            </div>
         </div>
     </div>
 
@@ -142,6 +167,8 @@
         const error = document.getElementById('raError');
         const results = document.getElementById('raResults');
         const sortControls = document.getElementById('sortControls');
+        document.getElementById('quickSearchHeader').style.display = 'none';
+        document.getElementById('quickSearchCards').style.display = 'none';
 
         progressContainer.style.display = 'block';
         error.style.display = 'none';
@@ -247,10 +274,6 @@
         const relationClass = collaborator.role.toLowerCase().replace(/\s+/g, '-');
         container.insertAdjacentHTML('beforeend', `
             <div class="artist-card">
-                <div class="card-image-container">
-                    <img src="" alt="${collaborator.name}" class="card-image loading" ${hasImage} ${hasRelease} onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'; this.classList.remove('loading')">
-                    ${collaborator.release_id ? `<img src="" alt="Release art" class="release-overlay loading" data-release-id="${collaborator.release_id}" onerror="this.src='https://via.placeholder.com/50x50?text=No+Art'; this.classList.remove('loading')">` : ''}
-                </div>
                 <div class="card-content">
                     <div class="card-header">
                         <div class="ra-artist-name">${collaborator.name}</div>
@@ -355,10 +378,6 @@
                 const relClass = artist.relationType.toLowerCase().replace(/\s+/g, '-');
                 html += `
                     <div class="artist-card">
-                        <div class="card-image-container">
-                            <img src="${imgSrc}" alt="${artist.name}" class="${imgClass}" ${hasImage} ${hasRelease} onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'; this.classList.remove('loading')">
-                            ${artist.release_id ? `<img src="${loadedReleaseImages[artist.release_id] || ''}" alt="Release art" class="release-overlay ${loadedReleaseImages[artist.release_id] ? '' : 'loading'}" data-release-id="${artist.release_id}" onerror="this.src='https://via.placeholder.com/50x50?text=No+Art'; this.classList.remove('loading')">` : ''}
-                        </div>
                         <div class="card-content">
                             <div class="card-header">
                                 <div class="ra-artist-name">${artist.name}</div>

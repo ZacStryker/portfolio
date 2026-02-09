@@ -183,12 +183,18 @@ def extract_collaborators_async(artist_name, progress_callback, search_id, pause
         relations_dict = defaultdict(lambda: defaultdict(lambda: {'id': None, 'releases': [], 'image': ''}))
 
         progress_callback(15, 'Fetching releases...')
-        all_releases = list(artist.releases)
-        releases = all_releases[:MAX_RELEASES]
+        releases_list = artist.releases
+        releases = []
+        for release in releases_list:
+            releases.append(release)
+            if len(releases) >= MAX_RELEASES:
+                break
         total_releases = len(releases)
+        total_available = getattr(releases_list, 'count', total_releases)
+        limited_results = total_available > MAX_RELEASES
 
-        if len(all_releases) > MAX_RELEASES:
-            progress_callback(18, f'Processing first {MAX_RELEASES} of {len(all_releases)} releases...')
+        if limited_results:
+            progress_callback(18, f'Processing first {MAX_RELEASES} of {total_available} releases...')
 
         if search_id not in active_searches or not active_searches[search_id]:
             return None, None, {}, None, False
@@ -394,7 +400,7 @@ def extract_collaborators_async(artist_name, progress_callback, search_id, pause
             relations[role].sort(key=lambda x: x['name'].lower())
 
         progress_callback(100, 'Complete!')
-        return actual_artist_name, artist_url, relations, schema_data, len(all_releases) > MAX_RELEASES
+        return actual_artist_name, artist_url, relations, schema_data, limited_results
 
     except Exception:
         import traceback
