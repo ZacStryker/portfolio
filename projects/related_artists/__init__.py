@@ -30,8 +30,8 @@ bp = Blueprint(
 
 # Initialize Discogs client
 _discogs = discogs_client.Client(
-    'zac@zacstryker.com/1.0',
-    user_token='wuJcrmLQnTCCwtsqYUWFonxTZOuaPnLNSgyBzhYd',
+    os.environ.get('DISCOGS_USER_AGENT', 'MLHub/1.0'),
+    user_token=os.environ.get('DISCOGS_USER_TOKEN', 'wuJcrmLQnTCCwtsqYUWFonxTZOuaPnLNSgyBzhYd'),
 )
 
 # Cache configuration
@@ -509,7 +509,15 @@ def search_stream():
             active_searches.pop(search_id, None)
             pause_events.pop(search_id, None)
 
-    return Response(generate(), mimetype='text/event-stream')
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        },
+    )
 
 
 @bp.route('/cancel', methods=['POST'])
