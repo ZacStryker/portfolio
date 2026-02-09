@@ -5,7 +5,7 @@
 {% block content %}
 <div class="landing">
     <div class="hero">
-        <img src="https://www.zacstryker.com/headshot.jpg" alt="Zac Stryker" class="hero-headshot">
+        <img src="{{ url_for('static', filename='headshot.jpg') }}" alt="Zac Stryker" class="hero-headshot">
         <h1>Zac Stryker</h1>
         <p class="role">ML Engineer | Fullstack Developer</p>
         <p class="location">Utrecht, Netherlands</p>
