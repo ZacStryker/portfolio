@@ -1969,6 +1969,85 @@ button:disabled, .btn:disabled {
 
 /* --- Related Artists --- */
 
+.quick-search-header {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.quick-search-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.quick-card {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface-light);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.quick-card img {
+    width: 75px;
+    height: 75px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    flex-shrink: 0;
+}
+
+.quick-card-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.quick-card-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.btn-quick-search {
+    background: transparent;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    border-radius: 6px;
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    line-height: 1;
+}
+
+.btn-quick-search:hover {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+}
+
+@media (max-width: 650px) {
+    .quick-search-cards { flex-direction: column; }
+}
+
 .search-toolbar {
     display: flex;
     gap: 10px;
