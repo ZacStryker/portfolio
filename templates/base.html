@@ -23,32 +23,46 @@
 
     <header class="topbar">
         <a href="{{ url_for('landing') }}" class="nav-brand">Zac Stryker</a>
+        <button class="hamburger" id="menuToggle" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
         <a href="{{ url_for('landing') }}" class="topbar-link {% if request.path == '/' %}active{% endif %}">Home</a>
         <a href="{{ url_for('projects') }}" class="topbar-link {% if ns.show_sidebar %}active{% endif %}">Projects</a>
         <a href="{{ url_for('blog') }}" class="topbar-link {% if request.path == '/blog/' %}active{% endif %}">Blog</a>
         <a href="{{ url_for('resume') }}" class="topbar-link {% if request.path == '/resume/' %}active{% endif %}">Resume</a>
         <a href="{{ url_for('about') }}" class="topbar-link {% if request.path == '/about/' %}active{% endif %}">About</a>
         <a href="{{ url_for('contact') }}" class="topbar-link {% if request.path == '/contact/' %}active{% endif %}">Contact</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"><span class="theme-label"></span></button>
     </header>
 
     <script>
         (function() {
             var btn = document.getElementById('themeToggle');
-            function icon() {
-                return document.documentElement.getAttribute('data-theme') === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+            var label = btn.querySelector('.theme-label');
+            function isLight() {
+                return document.documentElement.getAttribute('data-theme') === 'light';
             }
-            btn.textContent = icon();
+            function update() {
+                btn.firstChild.nodeValue = isLight() ? '\u2600\uFE0F ' : '\uD83C\uDF19 ';
+                label.textContent = isLight() ? 'Light Mode' : 'Dark Mode';
+            }
+            btn.insertBefore(document.createTextNode(''), label);
+            update();
             btn.addEventListener('click', function() {
-                var current = document.documentElement.getAttribute('data-theme');
-                var next = current === 'light' ? 'dark' : 'light';
+                var next = isLight() ? 'dark' : 'light';
                 if (next === 'dark') {
                     document.documentElement.removeAttribute('data-theme');
                 } else {
                     document.documentElement.setAttribute('data-theme', next);
                 }
                 localStorage.setItem('theme', next);
-                btn.textContent = icon();
+                update();
+            });
+
+            var menu = document.getElementById('menuToggle');
+            var topbar = document.querySelector('.topbar');
+            menu.addEventListener('click', function() {
+                topbar.classList.toggle('open');
             });
         })();
     </script>

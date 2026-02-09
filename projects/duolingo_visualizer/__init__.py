@@ -23,7 +23,7 @@ bp = Blueprint(
     url_prefix='/duolingo-visualizer',
 )
 
-_DATA_PATH = Path(__file__).resolve().parent.parent.parent.parent / 'duolingo-visualizer' / 'data' / 'duolingo-progress.json'
+_DATA_PATH = Path(__file__).resolve().parent / 'data' / 'duolingo-progress.json'
 
 
 @bp.route('/')
