@@ -294,7 +294,16 @@
     window.loadMore = function() {
         document.getElementById('loadMoreContainer').style.display = 'none';
         document.getElementById('progressContainer').style.display = 'block';
-        fetch(`${BASE_URL}/resume`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_id: currentSearchId }), signal: fetchAbortController?.signal }).catch(() => {});
+        // Abort pending image fetches so /resume gets a connection slot immediately
+        if (fetchAbortController) fetchAbortController.abort();
+        fetchAbortController = new AbortController();
+        // Reset aborted images so they can be re-observed later
+        document.querySelectorAll('.card-image.loading[data-loaded], .release-overlay.loading[data-loaded]').forEach(img => {
+            delete img.dataset.loaded;
+        });
+        fetch(`${BASE_URL}/resume`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_id: currentSearchId }), signal: fetchAbortController.signal })
+            .then(() => setTimeout(() => observeImages(), 500))
+            .catch(() => {});
     };
 
     function getLatestYear(releases) {
