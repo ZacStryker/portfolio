@@ -70,7 +70,7 @@ body::before {
     z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.25rem;
     padding: 0.75rem 1.5rem;
     background: var(--nav-bg);
     backdrop-filter: blur(12px);
@@ -85,6 +85,7 @@ body::before {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-decoration: none;
+    margin-right: 0.75rem;
 }
 
 .topbar-link {
@@ -105,6 +106,16 @@ body::before {
 .topbar-link.active {
     color: var(--text);
     background: var(--surface);
+}
+
+.topbar-github {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.topbar-github svg {
+    display: block;
 }
 
 /* --- Hamburger (hidden on desktop) --- */
@@ -275,6 +286,10 @@ body::before {
     .topbar.open .topbar-link,
     .topbar.open .theme-toggle {
         display: flex;
+    }
+
+    .topbar-github {
+        margin-left: 0;
     }
 
     .topbar-link {
@@ -571,6 +586,64 @@ button:disabled, .btn:disabled {
 
 .overview-card p:last-child {
     margin-bottom: 0;
+}
+
+.overview-card h4 {
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-top: 1.25rem;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.overview-card ul,
+.overview-card ol {
+    padding-left: 1.25rem;
+    margin: 0 0 0.5rem;
+}
+
+.overview-card li {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 0.25rem;
+}
+
+.overview-card code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface-light);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+}
+
+.overview-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 0.5rem;
+}
+
+.overview-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.overview-card th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.overview-card td {
+    color: var(--text-muted);
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--border);
 }
 
 /* --- Responsive --- */
@@ -2015,6 +2088,65 @@ button:disabled, .btn:disabled {
     pointer-events: none;
     z-index: 10;
     box-shadow: 0 4px 12px var(--shadow);
+}
+
+/* --- Technical Overview --- */
+
+.tech-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.tech-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.tech-section p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.tech-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.tech-section ul li {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.tech-section ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+}
+
+.tech-section code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
 }
 
 /* --- Related Artists --- */

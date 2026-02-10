@@ -66,9 +66,67 @@
 </div>
 
 <div class="overview-card">
-    <h3>Technical Overview</h3>
-    <p>This tool queries the Discogs music database API to map collaborator networks for any artist. It examines track-level credits across an artist's discography to surface guest appearances, featured artists, and band members.</p>
-    <p>Results stream in real-time via Server-Sent Events (SSE) and are cached for 7 days. Artist and release artwork is lazy-loaded on scroll. The first 100 releases are processed per search to balance depth with responsiveness.</p>
+    <h3>README.md</h3>
+    <p>Discover connections between musical artists by exploring collaborator networks. Search for any artist and find guest appearances, featured collaborations, and band members through the Discogs music database API. Results stream in real-time as they are discovered.</p>
+
+    <h4>Features</h4>
+    <ul>
+        <li><strong>Artist search</strong> -- type any artist or band name</li>
+        <li><strong>Streaming results</strong> -- collaborators appear in real-time via Server-Sent Events as releases are processed</li>
+        <li><strong>Pause/resume</strong> -- results are delivered in batches of 12; pause to browse, resume to load more</li>
+        <li><strong>Sorting</strong> -- by name (alphabetical), year (latest collaboration), or role</li>
+        <li><strong>Relationship categories</strong> -- Members, Guests (featured on the artist's tracks), Appearances (tracks where the artist appears on others' releases)</li>
+        <li><strong>Lazy image loading</strong> -- artist and album artwork loads on scroll via IntersectionObserver</li>
+        <li><strong>7-day cache</strong> -- repeated searches return instantly from a local JSON cache</li>
+    </ul>
+
+    <h4>How It Works</h4>
+    <ol>
+        <li>The backend searches Discogs for the artist and fetches up to 100 releases</li>
+        <li>For each release, track-level credits are parsed to identify collaborators</li>
+        <li>Collaborators are streamed to the frontend via SSE as they are found</li>
+        <li>After every 12 new collaborators, processing pauses until the user resumes</li>
+        <li>Results are cached to disk for 7 days to avoid redundant API calls</li>
+    </ol>
+
+    <h4>Tech Stack</h4>
+    <ul>
+        <li><strong>Discogs API</strong> (<code>python3-discogs-client</code>) -- artist search, release data, track credits, images</li>
+        <li><strong>Flask</strong> -- SSE streaming endpoint, image proxy routes, cancel/resume API</li>
+        <li><strong>Server-Sent Events</strong> -- real-time result streaming without WebSockets</li>
+        <li><strong>Threading</strong> -- non-blocking background processing with queue-based communication</li>
+        <li><strong>IntersectionObserver</strong> -- lazy loading of artist/album artwork</li>
+    </ul>
+
+    <h4>SSE Event Types</h4>
+    <div class="overview-table-wrapper">
+        <table>
+            <thead><tr><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>progress</code></td><td>General progress update with percentage</td></tr>
+                <tr><td><code>artist_info</code></td><td>Found the main artist with profile data</td></tr>
+                <tr><td><code>collaborator</code></td><td>A new collaborator with release info</td></tr>
+                <tr><td><code>paused</code></td><td>Batch complete, waiting for resume</td></tr>
+                <tr><td><code>complete</code></td><td>Search finished with full results</td></tr>
+                <tr><td><code>cached</code></td><td>Results returned from cache</td></tr>
+                <tr><td><code>error</code></td><td>Something went wrong</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h4>API Endpoints</h4>
+    <div class="overview-table-wrapper">
+        <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>GET</td><td><code>/related-artists/search_stream</code></td><td>SSE stream of results</td></tr>
+                <tr><td>POST</td><td><code>/related-artists/cancel</code></td><td>Cancel an active search</td></tr>
+                <tr><td>POST</td><td><code>/related-artists/resume</code></td><td>Resume a paused search</td></tr>
+                <tr><td>GET</td><td><code>/related-artists/fetch_image/&lt;id&gt;</code></td><td>Fetch artist image</td></tr>
+                <tr><td>GET</td><td><code>/related-artists/fetch_release_image/&lt;id&gt;</code></td><td>Fetch album artwork</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 

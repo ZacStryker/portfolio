@@ -50,11 +50,33 @@
 </div>
 
 <div class="overview-card">
-    <h3>Technical Overview</h3>
-    <p>This project uses a neural network trained on the MNIST dataset (28x28 grayscale handwritten digits) with a Flatten &rarr; Dense(128, ReLU) &rarr; Dense(64, ReLU) &rarr; Dense(10, Softmax) architecture.</p>
-    <p>The trained Keras model is converted to TensorFlow.js format and loaded directly in the browser, so all inference runs client-side with no server calls.</p>
-    <p>When you click Predict, the canvas drawing is scaled down to 28x28 pixels, normalized to [0, 1], and fed through the network to produce a probability distribution over digits 0&ndash;9.</p>
-    <p>The predicted digit is the class with the highest softmax output, displayed alongside a confidence percentage and per-class probability bars.</p>
+    <h3>README.md</h3>
+    <p>Interactive handwritten digit recognition using a neural network trained on the MNIST dataset. Draw a digit on the canvas and the model predicts it in real-time with per-class confidence scores.</p>
+
+    <h4>How It Works</h4>
+    <p>All inference runs <strong>client-side</strong> via TensorFlow.js -- no server calls required. A pre-trained Keras model is converted to TensorFlow.js format and loaded directly in the browser.</p>
+    <p>When you click Predict, the canvas drawing is scaled down to 28&times;28 grayscale pixels, normalized to [0, 1], and fed through the network. The output is a probability distribution over digits 0&ndash;9, displayed as confidence bars.</p>
+
+    <h4>Model Architecture</h4>
+    <div class="overview-table-wrapper">
+        <table>
+            <thead><tr><th>Layer</th><th>Output Shape</th><th>Details</th></tr></thead>
+            <tbody>
+                <tr><td>Input</td><td>28 &times; 28</td><td>Grayscale pixel values</td></tr>
+                <tr><td>Flatten</td><td>784</td><td>Reshape to 1D vector</td></tr>
+                <tr><td>Dense</td><td>128</td><td>ReLU activation</td></tr>
+                <tr><td>Dense</td><td>64</td><td>ReLU activation</td></tr>
+                <tr><td>Dense</td><td>10</td><td>Softmax activation (one per digit)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h4>Tech Stack</h4>
+    <ul>
+        <li><strong>TensorFlow.js</strong> -- client-side neural network inference</li>
+        <li><strong>Canvas API</strong> -- drawing input and image preprocessing</li>
+        <li><strong>Flask</strong> -- serves the page (no backend inference)</li>
+    </ul>
 </div>
 </div>
 {% endblock %}

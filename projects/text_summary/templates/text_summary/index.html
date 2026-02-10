@@ -95,11 +95,49 @@
 </div>
 
 <div class="overview-card">
-    <h3>Technical Overview</h3>
-    <p>This project provides both extractive and abstractive summarization powered by a Flask API backend.</p>
-    <p>Extractive methods (TextRank, LSA, Luhn) use the sumy library to score and select the most important sentences from the original text based on graph ranking, singular value decomposition, or word frequency analysis.</p>
-    <p>The abstractive method uses the facebook/bart-large-cnn transformer model via Hugging Face, which generates new sentences that capture the meaning of the input using beam search decoding.</p>
-    <p>Text is sent to the server via a POST request, processed by the selected algorithm, and returned with metrics including word count, compression ratio, and processing time.</p>
+    <h3>README.md</h3>
+    <p>Transform long texts into concise summaries using four different AI algorithms -- both extractive and abstractive methods. Paste text or upload a file, pick a method, and compare results with compression metrics.</p>
+
+    <h4>Summarization Methods</h4>
+    <div class="overview-table-wrapper">
+        <table>
+            <thead><tr><th>Method</th><th>Type</th><th>How It Works</th></tr></thead>
+            <tbody>
+                <tr><td><strong>TextRank</strong></td><td>Extractive</td><td>Graph-based sentence ranking (similar to PageRank)</td></tr>
+                <tr><td><strong>LSA</strong></td><td>Extractive</td><td>Latent Semantic Analysis via singular value decomposition</td></tr>
+                <tr><td><strong>Luhn</strong></td><td>Extractive</td><td>Keyword frequency scoring</td></tr>
+                <tr><td><strong>BART</strong></td><td>Abstractive</td><td><code>facebook/bart-large-cnn</code> generates new summary sentences using beam search</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>Extractive methods select and return existing sentences from the source. The abstractive method generates entirely new text.</p>
+
+    <h4>Metrics</h4>
+    <ul>
+        <li>Original and summary word counts</li>
+        <li>Compression ratio (percentage reduction)</li>
+        <li>Processing time</li>
+    </ul>
+
+    <h4>Tech Stack</h4>
+    <ul>
+        <li><strong>Flask</strong> -- API backend (<code>POST /api/summarize</code>)</li>
+        <li><strong>Hugging Face Transformers</strong> -- BART model for abstractive summarization</li>
+        <li><strong>Sumy</strong> -- LSA, TextRank, and Luhn extractive algorithms</li>
+        <li><strong>NLTK</strong> -- sentence tokenization</li>
+        <li><strong>PyTorch</strong> -- model inference runtime</li>
+    </ul>
+
+    <h4>API</h4>
+    <div class="overview-table-wrapper">
+        <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>GET</td><td><code>/text-summary/</code></td><td>Main page</td></tr>
+                <tr><td>POST</td><td><code>/text-summary/api/summarize</code></td><td>Summarize text</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </div>
 {% endblock %}
