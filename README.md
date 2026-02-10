@@ -1,4 +1,4 @@
-# ML Hub
+# Portfolio Site
 
 A fullstack portfolio and interactive machine learning showcase built with Flask. Features five self-contained project demos spanning computer vision, NLP, unsupervised learning, data visualization, and music data exploration -- plus a blog, resume, and contact pages.
 
