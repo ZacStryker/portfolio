@@ -3,6 +3,8 @@ services:
     build: .
     env_file: .env
     restart: always
+    volumes:
+      - .:/app
 
   nginx:
     image: nginx:alpine
