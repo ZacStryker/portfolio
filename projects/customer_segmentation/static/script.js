@@ -49,6 +49,13 @@
     function gridColor() { return isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'; }
     function tickColor() { return isDark() ? '#94a3b8' : '#475569'; }
 
+    function formatCompact(v) {
+        if (Math.abs(v) >= 1e9) return (v / 1e9).toFixed(Math.abs(v) % 1e9 === 0 ? 0 : 1) + 'B';
+        if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(Math.abs(v) % 1e6 === 0 ? 0 : 1) + 'M';
+        if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(Math.abs(v) % 1e3 === 0 ? 0 : 1) + 'K';
+        return v;
+    }
+
     // ── K-means++ initialization ──────────────────────────────────
     function kMeansPlusPlus(points, numK) {
         var centroids = [];
@@ -502,7 +509,7 @@
                         y: {
                             title: { display: true, text: 'Inertia', color: tc, font: { size: 11 } },
                             grid: { color: gc },
-                            ticks: { color: tc, font: { size: 10 } }
+                            ticks: { color: tc, font: { size: 10 }, callback: formatCompact }
                         }
                     }
                 }
@@ -577,7 +584,7 @@
                             position: 'left',
                             title: { display: true, text: 'Inertia', color: tc, font: { size: 11 } },
                             grid: { color: gc },
-                            ticks: { color: tc, font: { size: 10 } }
+                            ticks: { color: tc, font: { size: 10 }, callback: formatCompact }
                         },
                         y2: {
                             position: 'right',

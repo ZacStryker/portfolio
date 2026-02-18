@@ -10,7 +10,6 @@ Discover connections between musical artists by exploring collaborator networks.
 - **Pause/resume** -- results are delivered in batches of 12; pause to browse, resume to load more
 - **Sorting** -- by name (alphabetical), year (latest collaboration), or role
 - **Relationship categories** -- Members, Guests (featured on the artist's tracks), Appearances (tracks where the artist appears on others' releases)
-- **Lazy image loading** -- artist and album artwork loads on scroll via IntersectionObserver
 - **7-day cache** -- repeated searches return instantly from a local JSON cache
 
 ## How It Works
@@ -27,7 +26,6 @@ Discover connections between musical artists by exploring collaborator networks.
 - **Flask** -- SSE streaming endpoint, image proxy routes, cancel/resume API
 - **Server-Sent Events** -- real-time result streaming without WebSockets
 - **Threading** -- non-blocking background processing with queue-based communication
-- **IntersectionObserver** -- lazy loading of artist/album artwork
 
 ## Project Structure
 
@@ -37,7 +35,7 @@ related_artists/
 ├── artist_cache.json            # 7-day rolling result cache
 └── templates/
     └── related_artists/
-        └── index.html           # Search UI, results display, inline JS (EventSource, sorting, lazy images)
+        └── index.html           # Search UI, results display, inline JS (EventSource, sorting)
 ```
 
 ## API
