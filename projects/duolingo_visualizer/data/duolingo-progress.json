@@ -3604,5 +3604,59 @@
     "session_time": 782,
     "streak": 98,
     "xp_today": 134
+  },
+  "2026/02/08": {
+    "number_of_sessions": 1,
+    "session_time": 374,
+    "streak": 99,
+    "xp_today": 43
+  },
+  "2026/02/09": {
+    "number_of_sessions": 1,
+    "session_time": 242,
+    "streak": 100,
+    "xp_today": 30
+  },
+  "2026/02/10": {
+    "number_of_sessions": 1,
+    "session_time": 385,
+    "streak": 101,
+    "xp_today": 44
+  },
+  "2026/02/11": {
+    "number_of_sessions": 0,
+    "session_time": 0,
+    "streak": 102,
+    "xp_today": 0
+  },
+  "2026/02/12": {
+    "number_of_sessions": 2,
+    "session_time": 1217,
+    "streak": 103,
+    "xp_today": 84
+  },
+  "2026/02/13": {
+    "number_of_sessions": 1,
+    "session_time": 203,
+    "streak": 104,
+    "xp_today": 30
+  },
+  "2026/02/14": {
+    "number_of_sessions": 1,
+    "session_time": 214,
+    "streak": 105,
+    "xp_today": 27
+  },
+  "2026/02/15": {
+    "number_of_sessions": 1,
+    "session_time": 199,
+    "streak": 106,
+    "xp_today": 29
+  },
+  "2026/02/16": {
+    "number_of_sessions": 0,
+    "session_time": 0,
+    "streak": 107,
+    "xp_today": 0
   }
 }
