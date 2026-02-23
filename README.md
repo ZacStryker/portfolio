@@ -1,6 +1,6 @@
 # Portfolio Site
 
-A fullstack portfolio and interactive machine learning showcase built with Flask. Features five self-contained project demos spanning computer vision, NLP, unsupervised learning, data visualization, and music data exploration -- plus a blog, resume, and contact pages.
+A fullstack portfolio and interactive machine learning showcase built with Flask. Features seven self-contained project demos spanning computer vision, NLP, unsupervised learning, classification, regression, data visualization, and music data exploration — plus a blog, resume, and contact pages.
 
 ## Projects
 
@@ -9,8 +9,10 @@ A fullstack portfolio and interactive machine learning showcase built with Flask
 | Project | Description | Runs On |
 |---------|-------------|---------|
 | [Digit Recognition](projects/digit_recognition/) | Draw a digit and a neural network identifies it in real-time with confidence scores | Client (TensorFlow.js) |
-| [Text Summarization](projects/text_summary/) | Summarize text with 4 algorithms -- TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
+| [Text Summarization](projects/text_summary/) | Summarize text with 4 algorithms — TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
 | [Customer Segmentation](projects/customer_segmentation/) | Animated K-means++ clustering with RFM analysis, elbow method, and silhouette scoring | Client (Chart.js) |
+| [Mushroom Classification](projects/mushroom_classification/) | Compare Random Forest, Gradient Boosting, Logistic Regression, and Decision Tree classifiers on the UCI Mushroom dataset | Server (scikit-learn) |
+| [Work-Life Regression](projects/work_life_regression/) | Regression pipeline predicting quality of life scores from work/life balance features with EDA plots | Server (scikit-learn, seaborn) |
 
 ### Data & Visualization
 
@@ -21,7 +23,7 @@ A fullstack portfolio and interactive machine learning showcase built with Flask
 
 ## Architecture
 
-Projects are **self-contained Flask blueprints** discovered and registered automatically at startup. Each project lives in its own directory under `projects/` with a `PROJECT_META` dict and a `bp` Blueprint. Adding a new project is as simple as creating a new package -- no manual wiring needed.
+Projects are **self-contained Flask blueprints** discovered and registered automatically at startup. Each project lives in its own directory under `projects/` with a `PROJECT_META` dict and a `bp` Blueprint. Adding a new project is as simple as creating a new package — no manual wiring needed.
 
 ```
 ml_hub/
@@ -49,15 +51,17 @@ ml_hub/
     ├── digit_recognition/
     ├── text_summary/
     ├── customer_segmentation/
+    ├── mushroom_classification/
+    ├── work_life_regression/
     ├── duolingo_visualizer/
     └── related_artists/
 ```
 
 ## Tech Stack
 
-- **Backend**: Flask, Gunicorn (gevent), Python 3.11
+- **Backend**: Flask, Gunicorn (gevent), Python 3.12
 - **Frontend**: Vanilla JavaScript, Chart.js, TensorFlow.js, Canvas API
-- **ML/NLP**: PyTorch, Hugging Face Transformers (BART), NLTK, Sumy, scikit-learn
+- **ML/NLP**: PyTorch, Hugging Face Transformers (BART), NLTK, Sumy, scikit-learn, seaborn
 - **APIs**: Discogs (python3-discogs-client)
 - **Deployment**: Docker, Nginx, Let's Encrypt SSL
 - **Styling**: Custom CSS with dark/light theme via CSS variables and `localStorage`
@@ -90,7 +94,7 @@ Nginx serves on ports 80/443. Flask runs internally on port 8000 behind Gunicorn
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DISCOGS_USER_AGENT` | User-Agent string for Discogs API requests | `MLHub/1.0` |
-| `DISCOGS_USER_TOKEN` | Discogs personal access token (required for Related Artists) | -- |
+| `DISCOGS_USER_TOKEN` | Discogs personal access token (required for Related Artists) | — |
 
 ## Routes
 
@@ -106,5 +110,7 @@ Nginx serves on ports 80/443. Flask runs internally on port 8000 behind Gunicorn
 | `/digit-recognition/` | Digit Recognition project |
 | `/text-summary/` | Text Summarization project |
 | `/customer-segmentation/` | Customer Segmentation project |
+| `/mushroom-classification/` | Mushroom Classification project |
+| `/work-life-regression/` | Work-Life Regression project |
 | `/duolingo-visualizer/` | Duolingo Visualizer project |
 | `/related-artists/` | Related Artists project |
