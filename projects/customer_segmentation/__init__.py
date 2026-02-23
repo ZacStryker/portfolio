@@ -6,7 +6,7 @@ PROJECT_META = {
     'description': 'Interactive K-means++ clustering with RFM analysis, animated convergence, and silhouette scoring.',
     'icon': 'scatter_plot',
     'color': '#00d4ff',
-    'category': 'Machine Learning',
+    'category': 'Unsupervised Clustering',
     'nav_group': 'Machine Learning',
     'tags': ['k-means++', 'clustering', 'rfm analysis'],
 }

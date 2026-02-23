@@ -11,13 +11,14 @@ import seaborn as sns
 from flask import Blueprint, jsonify, render_template, request
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import Lasso, Ridge
+from sklearn.base import clone
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.model_selection import GridSearchCV, learning_curve, train_test_split
 from sklearn.preprocessing import StandardScaler
 
 PROJECT_META = {
     'id': 'work-life-regression',
-    'name': 'Work-Life Regression',
+    'name': 'Longevity Prediction',
     'description': 'Predict lifespan from lifestyle habits using four regression models with GridSearchCV tuning, plus EDA with correlation heatmap, stacked histogram, and dot plot.',
     'icon': 'trending_up',
     'color': '#7c3aed',
@@ -68,9 +69,18 @@ _MODELS = {
     },
 }
 
-_cache = {}          # keyed by model name
-_preprocessed = None  # shared train/test splits (same for all models)
-_plots_cache = None  # cached base64 plot images
+_cache = {}               # keyed by model name
+_diagnostics_cache = {}  # learning curve, keyed by model name
+_preprocessed = None      # shared train/test splits (same for all models)
+_plots_cache = None       # cached base64 plot images
+
+# ── Shared dark-theme palette ─────────────────────────────────────
+_BG      = '#1e293b'
+_SURFACE = '#334155'
+_TEXT    = '#f1f5f9'
+_MUTED   = '#94a3b8'
+_ACCENT  = '#7c3aed'
+_CYAN    = '#00d4ff'
 
 
 def _fig_to_b64(fig):
@@ -293,6 +303,48 @@ def run():
         for k, v in grid_search.best_params_.items()
     }
 
+    # ── Residuals plots ───────────────────────────────────────────
+    residuals = np.array(y_test) - y_pred
+
+    sns.set_theme(style='dark', rc={
+        'figure.facecolor': _BG, 'axes.facecolor': _BG,
+        'axes.edgecolor': _SURFACE, 'axes.labelcolor': _TEXT,
+        'xtick.color': _MUTED, 'ytick.color': _MUTED,
+        'text.color': _TEXT, 'grid.color': _SURFACE,
+        'font.family': 'sans-serif',
+    })
+
+    # Residuals vs Fitted
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.scatter(y_pred, residuals, alpha=0.4, s=12,
+               color=_ACCENT, edgecolors='none')
+    ax.axhline(0, color=_CYAN, linewidth=1.5, linestyle='--', alpha=0.8)
+    ax.set_xlabel('Fitted Values (Predicted Age)', color=_TEXT)
+    ax.set_ylabel('Residual (Actual − Predicted)', color=_TEXT)
+    ax.set_title('Residuals vs Fitted', color=_TEXT, fontsize=12, pad=10)
+    ax.tick_params(colors=_MUTED, labelsize=8)
+    for sp in ax.spines.values():
+        sp.set_color(_SURFACE)
+    fig.tight_layout()
+    residuals_plot_b64 = _fig_to_b64(fig)
+
+    # Residuals distribution
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.hist(residuals, bins=40, color=_ACCENT, alpha=0.75, edgecolor='none')
+    ax.axvline(0, color=_CYAN, linewidth=1.5, linestyle='--', alpha=0.8, label='Zero')
+    ax.axvline(residuals.mean(), color=_MUTED, linewidth=1.2,
+               linestyle=':', alpha=0.8, label=f'Mean {residuals.mean():.2f}')
+    ax.set_xlabel('Residual (years)', color=_TEXT)
+    ax.set_ylabel('Count', color=_TEXT)
+    ax.set_title('Residuals Distribution', color=_TEXT, fontsize=12, pad=10)
+    ax.legend(fontsize=8, framealpha=0.15, labelcolor=_TEXT,
+              facecolor=_SURFACE, edgecolor='none')
+    ax.tick_params(colors=_MUTED, labelsize=8)
+    for sp in ax.spines.values():
+        sp.set_color(_SURFACE)
+    fig.tight_layout()
+    residuals_dist_b64 = _fig_to_b64(fig)
+
     _cache[model_key] = {
         'metrics': {
             'test_r2':    round(test_r2,   4),
@@ -312,5 +364,79 @@ def run():
         'n_train': data['n_train'],
         'n_test':  data['n_test'],
         'model_key': model_key,
+        'residuals_plot': residuals_plot_b64,
+        'residuals_dist': residuals_dist_b64,
     }
     return jsonify(_cache[model_key])
+
+
+@bp.route('/diagnostics')
+def diagnostics():
+    model_key = request.args.get('model', 'random_forest')
+    if model_key not in _MODELS:
+        return jsonify({'error': f'Unknown model: {model_key}'}), 400
+
+    if model_key in _diagnostics_cache:
+        return jsonify(_diagnostics_cache[model_key])
+
+    data    = _load_and_split()
+    X_train = data['X_train']
+    y_train = data['y_train']
+
+    # Clone the best estimator if already trained, otherwise use default
+    if model_key in _cache:
+        # Re-instantiate with best params to avoid fitting issues
+        cfg = _MODELS[model_key]
+        best_params = _cache[model_key]['best_params']
+        estimator = cfg['estimator']()
+        estimator.set_params(**{k: v for k, v in best_params.items()
+                                if v != 'None'})
+    else:
+        estimator = _MODELS[model_key]['estimator']()
+
+    train_sizes, train_scores, val_scores = learning_curve(
+        estimator, X_train, y_train,
+        train_sizes=np.linspace(0.1, 1.0, 6),
+        cv=3, scoring='r2', n_jobs=-1,
+    )
+
+    train_mean = train_scores.mean(axis=1)
+    train_std  = train_scores.std(axis=1)
+    val_mean   = val_scores.mean(axis=1)
+    val_std    = val_scores.std(axis=1)
+
+    sns.set_theme(style='dark', rc={
+        'figure.facecolor': _BG, 'axes.facecolor': _BG,
+        'axes.edgecolor': _SURFACE, 'axes.labelcolor': _TEXT,
+        'xtick.color': _MUTED, 'ytick.color': _MUTED,
+        'text.color': _TEXT, 'grid.color': _SURFACE,
+        'font.family': 'sans-serif',
+    })
+
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+
+    ax.plot(train_sizes, train_mean, 'o-', color=_ACCENT, linewidth=2.2,
+            markersize=5, label='Training R²')
+    ax.fill_between(train_sizes,
+                    train_mean - train_std, train_mean + train_std,
+                    alpha=0.12, color=_ACCENT)
+
+    ax.plot(train_sizes, val_mean, 'o-', color=_CYAN, linewidth=2.2,
+            markersize=5, label='Cross-val R²')
+    ax.fill_between(train_sizes,
+                    val_mean - val_std, val_mean + val_std,
+                    alpha=0.12, color=_CYAN)
+
+    ax.set_xlabel('Training Set Size', color=_TEXT)
+    ax.set_ylabel('R² Score', color=_TEXT)
+    ax.set_title('Learning Curve', color=_TEXT, fontsize=12, pad=10)
+    ax.legend(fontsize=9, framealpha=0.15, labelcolor=_TEXT,
+              facecolor=_SURFACE, edgecolor='none')
+    ax.tick_params(colors=_MUTED, labelsize=8)
+    for sp in ax.spines.values():
+        sp.set_color(_SURFACE)
+    fig.tight_layout()
+    lc_b64 = _fig_to_b64(fig)
+
+    _diagnostics_cache[model_key] = {'learning_curve': lc_b64, 'model_key': model_key}
+    return jsonify(_diagnostics_cache[model_key])

@@ -23,6 +23,11 @@
         if (scatterChart)    { scatterChart.destroy();    scatterChart    = null; }
         if (importanceChart) { importanceChart.destroy(); importanceChart = null; }
         if (metricsChart)    { metricsChart.destroy();    metricsChart    = null; }
+        // Clear diagnostic images so stale plots don't linger while loading
+        document.getElementById('imgResiduals').src       = '';
+        document.getElementById('imgResidualsDist').src   = '';
+        document.getElementById('imgLearningCurve').style.display = 'none';
+        document.getElementById('lcLoading').style.display = 'flex';
     }
 
     // ── Render: Actual vs Predicted scatter ────────────────────────
@@ -228,26 +233,24 @@
         document.getElementById('valRMSETrain').textContent = m.train_rmse.toFixed(2);
     }
 
-    // ── Populate best params ───────────────────────────────────────
-    function populateParams(params, cvScore) {
-        var row = document.getElementById('paramsRow');
-        var html = '<span class="param-chip"><strong>Best CV R²:</strong> ' + cvScore.toFixed(4) + '</span>';
-        Object.keys(params).forEach(function (k) {
-            html += '<span class="param-chip"><strong>' + k + ':</strong> ' + params[k] + '</span>';
-        });
-        row.innerHTML = html;
-        row.style.display = 'flex';
-    }
-
-    // ── Populate data strip ────────────────────────────────────────
+    // ── Populate data strip + pipeline steps ──────────────────────
     function populateDataStrip(nTrain, nTest) {
+        var modelLabel = document.querySelector('.model-btn.active').textContent.trim();
         document.getElementById('dataStrip').innerHTML =
             '<span><strong>Dataset:</strong> Quality of Life</span>' +
-            '<span><strong>Total samples:</strong> ' + (nTrain + nTest) + '</span>' +
-            '<span><strong>Train:</strong> ' + nTrain + '</span>' +
-            '<span><strong>Test:</strong> ' + nTest + '</span>' +
+            '<span><strong>Total samples:</strong> ' + (nTrain + nTest).toLocaleString() + '</span>' +
+            '<span><strong>Train:</strong> ' + nTrain.toLocaleString() + '</span>' +
+            '<span><strong>Test:</strong> ' + nTest.toLocaleString() + '</span>' +
             '<span><strong>Features:</strong> 4 numeric + 2 one-hot encoded</span>' +
-            '<span><strong>Target:</strong> age_at_death</span>';
+            '<span><strong>Target:</strong> age_at_death</span>' +
+            '<div class="pipeline-steps">' +
+                '<span class="step-chip done"><span class="step-num">1</span> Load Quality of Life CSV</span>' +
+                '<span class="step-chip done"><span class="step-num">2</span> One-hot encode gender &amp; occupation</span>' +
+                '<span class="step-chip done"><span class="step-num">3</span> Train/test split 80/20</span>' +
+                '<span class="step-chip done"><span class="step-num">4</span> StandardScaler</span>' +
+                '<span class="step-chip done"><span class="step-num">5</span> GridSearchCV 3-fold R\u00B2</span>' +
+                '<span class="step-chip done"><span class="step-num">6</span> ' + modelLabel + '</span>' +
+            '</div>';
     }
 
     // ── Run pipeline ───────────────────────────────────────────────
@@ -271,14 +274,17 @@
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 populateMetrics(data.metrics);
-                populateParams(data.best_params, data.metrics.cv_score);
                 populateDataStrip(data.n_train, data.n_test);
 
                 renderScatter(data.actual, data.predicted);
                 renderImportance(data.feature_importance);
                 renderMetricsComparison(data.metrics);
 
+                document.getElementById('imgResiduals').src     = 'data:image/png;base64,' + data.residuals_plot;
+                document.getElementById('imgResidualsDist').src = 'data:image/png;base64,' + data.residuals_dist;
+
                 document.getElementById('resultsSection').classList.add('visible');
+                loadDiagnostics(data.model_key);
 
                 spinner.classList.remove('visible');
                 label.textContent = 'Pipeline complete.';
@@ -293,6 +299,24 @@
                 label.textContent = 'Error running pipeline. Check the console.';
                 btnRerun.disabled = false;
                 document.querySelectorAll('.model-btn').forEach(function (b) { b.disabled = false; });
+            });
+    }
+
+    // ── Load learning curve ────────────────────────────────────────
+    function loadDiagnostics(modelKey) {
+        fetch('/work-life-regression/diagnostics?model=' + modelKey)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                // Ignore stale responses if the user switched models
+                if (data.model_key !== activeModel) return;
+                document.getElementById('lcLoading').style.display       = 'none';
+                document.getElementById('imgLearningCurve').style.display = 'block';
+                document.getElementById('imgLearningCurve').src           =
+                    'data:image/png;base64,' + data.learning_curve;
+            })
+            .catch(function (err) {
+                console.error('Diagnostics error:', err);
+                document.getElementById('lcLoading').textContent = 'Failed to load learning curve.';
             });
     }
 

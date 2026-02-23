@@ -1,0 +1,707 @@
+{% extends "base.html" %}
+
+{% block title %}Mushroom Classification - Zac Stryker{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+.page-mushroom-classification {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+/* ── project header ───────────────────────────────────────────── */
+.project-header {
+    margin-bottom: 1.75rem;
+}
+.project-header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.project-header .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* ── main card ────────────────────────────────────────────────── */
+.main-card {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+/* ── model toggle ─────────────────────────────────────────────── */
+.model-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.model-btn {
+    padding: 0.45rem 1rem;
+    background: var(--surface-light);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.model-btn:hover  { border-color: #10b981; color: #34d399; }
+.model-btn.active {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: #10b981;
+    color: #34d399;
+    font-weight: 600;
+}
+.model-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── re-run button ────────────────────────────────────────────── */
+.btn-rerun {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1.1rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+}
+.btn-rerun:hover { border-color: #10b981; color: #10b981; }
+.btn-rerun.visible { display: inline-flex; }
+
+/* ── run status ───────────────────────────────────────────────── */
+.run-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+.run-status {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+.run-status.visible { display: flex; }
+
+/* spinner */
+.spinner {
+    width: 15px; height: 15px;
+    border: 2px solid rgba(16, 185, 129, 0.25);
+    border-top-color: #10b981;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+}
+.spinner.visible { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── data strip ───────────────────────────────────────────────── */
+.data-strip {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+.data-strip span strong { color: var(--text); }
+.pipeline-steps {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+.step-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.step-chip.done {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+.step-chip .step-num {
+    font-size: 0.65rem;
+    opacity: 0.6;
+}
+
+/* ── results section ──────────────────────────────────────────── */
+.results-section { display: none; }
+.results-section.visible { display: block; }
+
+/* ── metrics row ──────────────────────────────────────────────── */
+.metrics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.metric-badge {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+}
+.metric-badge .badge-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+}
+.metric-badge .badge-value {
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+}
+.metric-badge .badge-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    opacity: 0.75;
+}
+.metric-badge.green  .badge-value { color: #34d399; }
+.metric-badge.cyan   .badge-value { color: #00d4ff; }
+.metric-badge.pink   .badge-value { color: #f472b6; }
+.metric-badge.yellow .badge-value { color: #fbbf24; }
+.metric-badge.purple .badge-value { color: #a78bfa; }
+
+/* ── charts grids ─────────────────────────────────────────────── */
+.charts-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+@media (max-width: 768px) {
+    .charts-grid-2 { grid-template-columns: 1fr; }
+}
+.viz-panel {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+}
+.viz-panel-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.9rem;
+}
+.chart-wrap {
+    position: relative;
+    height: 280px;
+}
+.chart-img {
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+}
+.compare-panel {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.compare-wrap {
+    position: relative;
+    height: 220px;
+}
+.compare-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+}
+
+/* ── EDA section ──────────────────────────────────────────────── */
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.75rem 0 1.25rem;
+}
+.section-divider-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #34d399;
+    white-space: nowrap;
+}
+.section-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.eda-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+}
+.eda-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.eda-plot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+.eda-plot-card.tall { min-height: 520px; }
+.eda-plot-card.xl   { min-height: 680px; }
+.eda-img {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    flex: 1;
+    min-height: 0;
+    object-fit: contain;
+}
+
+/* ── overview card ────────────────────────────────────────────── */
+.overview-card {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    margin-top: 1.5rem;
+}
+.overview-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+}
+.overview-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 1.1rem 0 0.5rem;
+    color: #34d399;
+}
+.overview-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+.overview-card ul, .overview-card ol {
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+.overview-card li strong { color: var(--text); }
+.overview-card code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: #34d399;
+}
+
+/* ── missing values panel ─────────────────────────────────── */
+.miss-summary {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0 1rem;
+}
+.miss-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.miss-badge.clean {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #34d399;
+}
+.miss-badge.warn {
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+}
+.miss-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+.miss-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+}
+.miss-table td {
+    padding: 0.6rem 0.75rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+}
+.miss-table tr:last-child td { border-bottom: none; }
+.miss-table td:nth-child(3),
+.miss-table td:nth-child(4) { font-family: 'JetBrains Mono', monospace; }
+.miss-pct  { color: #fbbf24; font-weight: 700; }
+.miss-note {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+.miss-note code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fbbf24;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+}
+
+@media (max-width: 600px) {
+    .data-strip { flex-direction: column; gap: 0.5rem; }
+    .eda-plot-card.tall { min-height: 320px; }
+    .eda-plot-card.xl   { min-height: 420px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-mushroom-classification">
+
+<div class="project-header">
+    <h1>Mushroom Classification</h1>
+    <p class="subtitle">Full ML pipeline &mdash; edible vs poisonous &mdash; EDA, feature engineering, scaling, 4 classifiers with confusion matrix, ROC &amp; PR curves, and feature importance</p>
+</div>
+
+<div class="main-card">
+
+    <!-- Model toggle -->
+    <div class="model-toggle">
+        <button class="model-btn active" data-model="random_forest">Random Forest</button>
+        <button class="model-btn" data-model="gradient_boosting">Gradient Boosting</button>
+        <button class="model-btn" data-model="logistic_regression">Logistic Regression</button>
+        <button class="model-btn" data-model="decision_tree">Decision Tree</button>
+    </div>
+
+    <button class="btn-rerun" id="btnRerun">&#8635;&nbsp; Re-run</button>
+
+    <!-- Run status -->
+    <div class="run-row">
+        <span class="run-status visible" id="runStatus">
+            <span class="spinner visible" id="spinner"></span>
+            &nbsp;<span id="runLabel">Training model&hellip;</span>
+        </span>
+    </div>
+
+    <!-- Results section -->
+    <div class="results-section" id="resultsSection">
+
+        <!-- Data strip + pipeline steps -->
+        <div class="data-strip" id="dataStrip"></div>
+
+        <!-- Metric badges -->
+        <div class="metrics-row">
+            <div class="metric-badge green">
+                <div class="badge-label">Accuracy
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Fraction of all predictions that were correct. With balanced classes this is a reliable overall metric. Ranges from 0 to 1.</span>
+                    </span>
+                </div>
+                <div class="badge-value" id="valAccuracy">—</div>
+                <div class="badge-sub">Overall correct / total</div>
+            </div>
+            <div class="metric-badge cyan">
+                <div class="badge-label">Precision
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Of all mushrooms predicted poisonous, what fraction actually were? High precision means fewer false alarms (safe to eat flagged as poisonous).</span>
+                    </span>
+                </div>
+                <div class="badge-value" id="valPrecision">—</div>
+                <div class="badge-sub">True pos / (True pos + False pos)</div>
+            </div>
+            <div class="metric-badge pink">
+                <div class="badge-label">Recall
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Of all truly poisonous mushrooms, what fraction did we catch? High recall means fewer misses (poisonous mushrooms labeled as edible — the dangerous mistake).</span>
+                    </span>
+                </div>
+                <div class="badge-value" id="valRecall">—</div>
+                <div class="badge-sub">True pos / (True pos + False neg)</div>
+            </div>
+            <div class="metric-badge yellow">
+                <div class="badge-label">F1 Score
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Harmonic mean of Precision and Recall. A single balanced measure — useful when you care about both false positives and false negatives.</span>
+                    </span>
+                </div>
+                <div class="badge-value" id="valF1">—</div>
+                <div class="badge-sub">2 &times; Precision &times; Recall / (P+R)</div>
+            </div>
+            <div class="metric-badge purple">
+                <div class="badge-label">AUC-ROC
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Area Under the ROC Curve. Probability that the model ranks a random poisonous mushroom above a random edible one. 1.0 = perfect, 0.5 = random.</span>
+                    </span>
+                </div>
+                <div class="badge-value" id="valAUC">—</div>
+                <div class="badge-sub">1.0 = perfect ranking</div>
+            </div>
+        </div>
+
+        <!-- Row 1: Confusion Matrix + Feature Importance -->
+        <div class="charts-grid-2">
+            <div class="viz-panel">
+                <div class="viz-panel-title">Confusion Matrix
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">True Edible (top-left) and True Poisonous (bottom-right) are correct predictions. Off-diagonals show errors — predicting poisonous as edible (False Negative) is the dangerous case.</span>
+                    </span>
+                </div>
+                <img id="imgCM" class="chart-img" alt="Confusion Matrix" style="max-height:300px;object-fit:contain;">
+            </div>
+            <div class="viz-panel">
+                <div class="viz-panel-title">Feature Importance
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">For tree models: mean decrease in impurity across all splits. For Logistic Regression: normalized absolute coefficient. Higher = more influence on the prediction.</span>
+                    </span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="importanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: ROC + PR curves -->
+        <div class="charts-grid-2" style="margin-bottom:1.25rem;">
+            <div class="viz-panel">
+                <div class="viz-panel-title">ROC Curve
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Receiver Operating Characteristic — plots True Positive Rate vs False Positive Rate at every threshold. The dashed line is a random classifier. Larger area = better model.</span>
+                    </span>
+                </div>
+                <img id="imgROC" class="chart-img" alt="ROC Curve" style="max-height:300px;object-fit:contain;">
+            </div>
+            <div class="viz-panel">
+                <div class="viz-panel-title">Precision-Recall Curve
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Plots Precision vs Recall at every classification threshold. Average Precision (AP) summarizes the curve. More informative than ROC when classes are imbalanced.</span>
+                    </span>
+                </div>
+                <img id="imgPR" class="chart-img" alt="PR Curve" style="max-height:300px;object-fit:contain;">
+            </div>
+        </div>
+
+        <!-- Accuracy comparison across all models -->
+        <div class="compare-panel">
+            <div class="viz-panel-title">Model Accuracy Comparison
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Accuracy and F1 score for all four classifiers trained on the same train/test split. The mushroom dataset is nearly linearly separable (odor alone achieves ~98%), so most models perform near-perfectly.</span>
+                </span>
+            </div>
+            <div class="compare-loading" id="compareLoading">
+                <span class="spinner visible" style="border-color:rgba(16,185,129,0.25);border-top-color:#10b981;"></span>
+                &nbsp;Training all models&hellip;
+            </div>
+            <div class="compare-wrap" id="compareWrap" style="display:none">
+                <canvas id="compareChart"></canvas>
+            </div>
+        </div>
+
+    </div><!-- /results-section -->
+
+    <!-- ── EDA Section ──────────────────────────────────────────── -->
+    <div class="section-divider">
+        <span class="section-divider-title">Exploratory Data Analysis</span>
+        <span class="section-divider-line"></span>
+    </div>
+
+    <div class="eda-loading" id="edaLoading">
+        <span class="spinner visible" style="border-color:rgba(16,185,129,0.25);border-top-color:#10b981;"></span>
+        &nbsp;Generating EDA plots&hellip;
+    </div>
+
+    <div class="eda-grid" id="edaGrid" style="display:none">
+
+        <div class="eda-plot-card">
+            <div class="viz-panel-title">Data Description &amp; Class Balance
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">The UCI mushroom dataset has 8,124 samples, 22 categorical features, and two classes: Edible (e) and Poisonous (p). The classes are roughly balanced at ~52% / ~48%.</span>
+                </span>
+            </div>
+            <img id="plotDescribe" class="eda-img" alt="Data Overview">
+        </div>
+
+        <div class="eda-plot-card">
+            <div class="viz-panel-title">Missing Values Analysis
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">The original dataset encodes missing values as '?' in the stalk-root column (~30.5% of rows). These are imputed with the column mode during preprocessing.</span>
+                </span>
+            </div>
+            <div id="missingContainer"></div>
+        </div>
+
+        <div class="eda-plot-card tall">
+            <div class="viz-panel-title">Feature Analysis — Stacked Distribution by Class
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Stacked bar charts for the first 9 features showing how each categorical value distributes across edible (green) and poisonous (red) classes. Features like odor show almost perfect separation.</span>
+                </span>
+            </div>
+            <img id="plotFeature" class="eda-img" alt="Feature Analysis">
+        </div>
+
+        <div class="eda-plot-card tall">
+            <div class="viz-panel-title">Bivariate Analysis — Top 6 Discriminative Features vs Class
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Features ranked by Cramér's V with the target class. Grouped bars show the percentage of edible vs poisonous mushrooms for each value of the feature. High V = strong association with class label.</span>
+                </span>
+            </div>
+            <img id="plotBivariate" class="eda-img" alt="Bivariate Analysis">
+        </div>
+
+        <div class="eda-plot-card xl">
+            <div class="viz-panel-title">Correlation Analysis — Cramér's V Heatmap
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Cramér's V measures association between categorical variables (0 = no association, 1 = perfect association). Unlike Pearson correlation, it works on nominal data and is symmetric.</span>
+                </span>
+            </div>
+            <img id="plotCorrelation" class="eda-img" alt="Correlation Heatmap">
+        </div>
+
+    </div><!-- /eda-grid -->
+
+</div><!-- /main-card -->
+
+<div class="overview-card">
+    <h3>README.md</h3>
+    <p>End-to-end binary classification pipeline on the <a href="https://www.kaggle.com/datasets/uciml/mushroom-classification" target="_blank" rel="noopener"><strong>UCI Mushroom dataset</strong></a> (8,124 samples, 22 categorical features). Predicts whether a mushroom is edible or poisonous. Switch models with the toggle above &mdash; each model is trained once and cached for instant replay. EDA plots and the model comparison chart load in parallel.</p>
+
+    <h4>ML Pipeline</h4>
+    <ol>
+        <li><strong>Load data</strong> &mdash; read <code>mushrooms.csv</code> (8,124 &times; 23 columns)</li>
+        <li><strong>Feature engineering</strong> &mdash; replace <code>'?'</code> (missing stalk-root) with NaN; impute with column mode</li>
+        <li><strong>Label encoding</strong> &mdash; <code>LabelEncoder</code> applied to all 22 categorical features + target (<code>e&rarr;0</code>, <code>p&rarr;1</code>)</li>
+        <li><strong>Train / test split</strong> &mdash; 80 / 20 stratified split, <code>random_state=42</code></li>
+        <li><strong>Scale X</strong> &mdash; <code>StandardScaler</code> fit on train, applied to both sets</li>
+        <li><strong>Fit classifier</strong> &mdash; one of 4 algorithms; evaluate on held-out test set</li>
+    </ol>
+
+    <h4>Models</h4>
+    <ul>
+        <li><strong>Random Forest</strong> &mdash; 100 trees, random_state=42</li>
+        <li><strong>Gradient Boosting</strong> &mdash; 100 estimators, random_state=42</li>
+        <li><strong>Logistic Regression</strong> &mdash; L2 penalty, max_iter=1000</li>
+        <li><strong>Decision Tree</strong> &mdash; unpruned, random_state=42</li>
+    </ul>
+
+    <h4>Charts</h4>
+    <ul>
+        <li><strong>Confusion Matrix</strong> &mdash; seaborn heatmap with True/Predicted class labels</li>
+        <li><strong>ROC Curve</strong> &mdash; FPR vs TPR with AUC annotation and fill</li>
+        <li><strong>PR Curve</strong> &mdash; Precision vs Recall with Average Precision annotation</li>
+        <li><strong>Feature Importance</strong> &mdash; top-10 features (tree impurity or |coef| for LR)</li>
+        <li><strong>Model Comparison</strong> &mdash; grouped bar chart of accuracy &amp; F1 for all 4 models</li>
+    </ul>
+
+    <h4>EDA</h4>
+    <ul>
+        <li><strong>Class balance &amp; overview</strong> &mdash; edible vs poisonous counts, unique values per feature</li>
+        <li><strong>Missing values</strong> &mdash; <code>stalk-root</code> has 2,480 missing values (30.5%)</li>
+        <li><strong>Feature analysis</strong> &mdash; stacked distribution of top 9 features by class</li>
+        <li><strong>Bivariate analysis</strong> &mdash; top 6 features ranked by Cramér's V with class label</li>
+        <li><strong>Correlation heatmap</strong> &mdash; Cramér's V matrix for all 22 categorical features</li>
+    </ul>
+
+    <h4>Tech Stack</h4>
+    <ul>
+        <li><strong>scikit-learn</strong> &mdash; classifiers, preprocessing, metrics</li>
+        <li><strong>scipy</strong> &mdash; <code>chi2_contingency</code> for Cramér's V</li>
+        <li><strong>seaborn / matplotlib</strong> &mdash; confusion matrix, ROC, PR curve, EDA plots</li>
+        <li><strong>pandas / numpy</strong> &mdash; data loading and feature engineering</li>
+        <li><strong>Chart.js</strong> &mdash; feature importance and model comparison charts</li>
+        <li><strong>Flask</strong> &mdash; serves the page with <code>/run</code>, <code>/compare</code>, and <code>/plots</code> API endpoints</li>
+    </ul>
+</div>
+
+</div><!-- /page -->
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('mushroom_classification.static', filename='script.js') }}"></script>
+{% endblock %}

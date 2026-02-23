@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Work-Life Regression - Zac Stryker{% endblock %}
+{% block title %}Longevity Prediction - Zac Stryker{% endblock %}
 
 {% block head_extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -108,23 +108,34 @@
 .spinner.visible { display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── best params ──────────────────────────────────────────── */
-.params-row {
+/* ── pipeline steps ───────────────────────────────────────── */
+.pipeline-steps {
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-bottom: 1.5rem;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
 }
-.param-chip {
-    padding: 0.3rem 0.75rem;
+.step-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.step-chip.done {
     background: rgba(124, 58, 237, 0.12);
     border: 1px solid rgba(124, 58, 237, 0.35);
-    border-radius: 20px;
-    font-size: 0.8rem;
     color: #a78bfa;
-    font-family: 'JetBrains Mono', monospace;
 }
-.param-chip strong { color: var(--text); }
+.step-chip .step-num {
+    font-size: 0.65rem;
+    opacity: 0.6;
+}
 
 /* ── results section ──────────────────────────────────────── */
 .results-section { display: none; }
@@ -215,6 +226,44 @@
 .chart-wrap-full {
     position: relative;
     height: 220px;
+}
+
+/* ── diagnostic images ────────────────────────────────────── */
+.diag-img {
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+    margin-top: 0.5rem;
+    object-fit: contain;
+    max-height: 300px;
+}
+.lc-loading {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.5rem 0;
+}
+
+/* ── eda section divider ──────────────────────────────────── */
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.75rem 0 1.25rem;
+}
+.section-divider-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a78bfa;
+    white-space: nowrap;
+}
+.section-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
 }
 
 /* ── eda section ──────────────────────────────────────────── */
@@ -342,7 +391,7 @@
 <div class="page-work-life-regression">
 
 <div class="project-header">
-    <h1>Work-Life Regression</h1>
+    <h1>Longevity Prediction</h1>
     <p class="subtitle">Predict lifespan from daily lifestyle habits &mdash; Random Forest, Gradient Boosting, Ridge &amp; Lasso with GridSearchCV</p>
 </div>
 
@@ -365,9 +414,6 @@
             &nbsp;<span id="btnRunLabel">Training model&hellip; this may take 20&ndash;40 seconds.</span>
         </span>
     </div>
-
-    <!-- Best params (shown after run) -->
-    <div class="params-row" id="paramsRow" style="display:none"></div>
 
     <!-- Results -->
     <div class="results-section" id="resultsSection">
@@ -474,11 +520,51 @@
             </div>
         </div>
 
+        <!-- Residuals plots -->
+        <div class="charts-grid">
+            <div class="viz-panel">
+                <div class="viz-panel-title">Residuals vs Fitted
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Each point is one test sample: x = predicted age, y = actual − predicted. A well-behaved model shows points scattered randomly around the dashed zero line with no pattern. Funneling or curves indicate heteroscedasticity or non-linearity.</span>
+                    </span>
+                </div>
+                <img id="imgResiduals" class="diag-img" alt="Residuals vs Fitted">
+            </div>
+            <div class="viz-panel">
+                <div class="viz-panel-title">Residuals Distribution
+                    <span class="info-tip">
+                        <span class="tip-icon">?</span>
+                        <span class="tip-content">Histogram of residuals (actual − predicted). A good regression model produces residuals that are roughly normally distributed and centred near zero. Heavy tails or skew suggest systematic bias.</span>
+                    </span>
+                </div>
+                <img id="imgResidualsDist" class="diag-img" alt="Residuals Distribution">
+            </div>
+        </div>
+
+        <!-- Learning curve -->
+        <div class="metrics-compare-panel">
+            <div class="viz-panel-title">Learning Curve
+                <span class="info-tip">
+                    <span class="tip-icon">?</span>
+                    <span class="tip-content">Training R² and cross-validation R² plotted against increasing training set size. Shaded bands show ±1 std deviation across folds. A converging gap means the model generalises well; a persistent gap indicates overfitting that more data may help close.</span>
+                </span>
+            </div>
+            <div class="lc-loading" id="lcLoading">
+                <span class="spinner visible" style="border-color:rgba(124,58,237,0.3);border-top-color:#a78bfa;width:14px;height:14px;"></span>
+                &nbsp;Computing learning curve&hellip;
+            </div>
+            <img id="imgLearningCurve" class="diag-img" style="display:none;" alt="Learning Curve">
+        </div>
+
     </div><!-- /results-section -->
 
     <!-- EDA Plots (load independently) -->
     <div class="eda-section" id="edaSection">
-        <div class="viz-panel-title" style="margin-bottom:1rem;">Exploratory Data Analysis</div>
+        <div class="section-divider">
+            <span class="section-divider-title">Exploratory Data Analysis</span>
+            <span class="section-divider-line"></span>
+        </div>
         <div class="eda-loading" id="edaLoading">
             <span class="spinner visible" style="border-color:rgba(124,58,237,0.3);border-top-color:#a78bfa;width:14px;height:14px;"></span>
             &nbsp;Loading plots&hellip;
@@ -535,6 +621,7 @@
         <li><strong>Scaling</strong> &mdash; StandardScaler fit on train, transform applied to both sets</li>
         <li><strong>GridSearchCV</strong> &mdash; 3-fold CV, scoring=R&sup2;, n_jobs=-1</li>
         <li><strong>Evaluation</strong> &mdash; R&sup2;, MAE, MSE, RMSE reported for both train and test sets</li>
+        <li><strong>Diagnostics</strong> &mdash; residuals vs fitted, residuals distribution, and learning curve</li>
     </ol>
 
     <h4>EDA</h4>
