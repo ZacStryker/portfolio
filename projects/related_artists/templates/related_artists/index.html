@@ -2,8 +2,11 @@
 
 {% block title %}Related Artists - Zac Stryker{% endblock %}
 
+{% block head_extra %}<style>.back-link:hover { color: #e11d48; }</style>{% endblock %}
+
 {% block content %}
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Related Artists</h1>
     <p class="subtitle">Discover connections between musical artists using Discogs data</p>
 </div>

@@ -4,11 +4,13 @@
 
 {% block head_extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>.back-link:hover { color: #00d4ff; }</style>
 {% endblock %}
 
 {% block content %}
 <div class="page-customer-segmentation">
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Customer Segmentation</h1>
     <p class="subtitle">Interactive K-means++ clustering with RFM analysis</p>
 </div>

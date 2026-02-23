@@ -2,11 +2,14 @@
 
 {% block title %}Text Summarization - Zac Stryker{% endblock %}
 
+{% block head_extra %}<style>.back-link:hover { color: #8b5cf6; }</style>{% endblock %}
+
 {% block content %}
 <div class="page-text-summary">
 <div id="app-data" data-api-url="{{ url_for('text_summary.summarize') }}"></div>
 
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Text Summarization</h1>
     <p class="subtitle">Transform long texts into concise summaries using advanced AI algorithms</p>
 </div>

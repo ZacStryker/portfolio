@@ -221,15 +221,15 @@
 
         var rows = mv.items.map(function (item) {
             return '<tr>' +
-                '<td><code style="font-family:\'JetBrains Mono\',monospace;font-size:0.82rem;' +
+                '<td data-label="Column"><code style="font-family:\'JetBrains Mono\',monospace;font-size:0.82rem;' +
                      'background:rgba(251,191,36,0.1);color:#fbbf24;padding:.1em .35em;border-radius:3px">' +
                      item.column + '</code></td>' +
-                '<td><code style="font-family:\'JetBrains Mono\',monospace;font-size:0.82rem;' +
+                '<td data-label="Encoded as"><code style="font-family:\'JetBrains Mono\',monospace;font-size:0.82rem;' +
                      'background:rgba(255,255,255,0.06);color:var(--text-muted);padding:.1em .35em;border-radius:3px">' +
                      '\'?\'</code></td>' +
-                '<td>' + item.count.toLocaleString() + '</td>' +
-                '<td class="miss-pct">' + item.pct + '%</td>' +
-                '<td>Imputed with column mode &rarr; <code style="font-family:\'JetBrains Mono\',monospace;' +
+                '<td data-label="Missing rows">' + item.count.toLocaleString() + '</td>' +
+                '<td data-label="% of total" class="miss-pct">' + item.pct + '%</td>' +
+                '<td data-label="Treatment">Imputed with column mode &rarr; <code style="font-family:\'JetBrains Mono\',monospace;' +
                      'font-size:0.82rem;background:rgba(16,185,129,0.1);color:#34d399;padding:.1em .35em;border-radius:3px">' +
                      '\'' + item.mode + '\'</code></td>' +
             '</tr>';

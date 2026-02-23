@@ -4,6 +4,7 @@
 
 {% block head_extra %}
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+<style>.back-link:hover { color: #60a5fa; }</style>
 {% endblock %}
 
 {% block content %}
@@ -11,6 +12,7 @@
 <div id="app-data" data-model-url="{{ url_for('digit_recognition.static', filename='tfjs_model/model.json') }}"></div>
 
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Digit Recognition</h1>
     <p class="subtitle">Draw a digit and watch AI identify it in real-time</p>
 </div>

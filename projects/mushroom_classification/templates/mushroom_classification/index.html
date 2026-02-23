@@ -6,24 +6,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <style>
 .page-mushroom-classification {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
+    padding-bottom: 4rem;
 }
 
 /* ── project header ───────────────────────────────────────────── */
-.project-header {
-    margin-bottom: 1.75rem;
-}
-.project-header h1 {
-    font-size: 1.9rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-}
-.project-header .subtitle {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
+.back-link:hover { color: #34d399; }
 
 /* ── main card ────────────────────────────────────────────────── */
 .main-card {
@@ -35,12 +22,20 @@
     position: relative;
 }
 
-/* ── model toggle ─────────────────────────────────────────────── */
+/* ── controls bar (model toggle + re-run) ─────────────────────── */
+.controls-bar {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
 .model-toggle {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    flex: 1;
+    min-width: 0;
 }
 .model-btn {
     padding: 0.45rem 1rem;
@@ -68,18 +63,18 @@
     display: none;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.55rem 1.1rem;
+    padding: 0.45rem 1rem;
     background: transparent;
     color: var(--text-muted);
     border: 1px solid var(--border);
     border-radius: 8px;
     font-family: inherit;
     font-size: 0.85rem;
+    font-weight: 500;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 .btn-rerun:hover { border-color: #10b981; color: #10b981; }
 .btn-rerun.visible { display: inline-flex; }
@@ -424,6 +419,34 @@
     .data-strip { flex-direction: column; gap: 0.5rem; }
     .eda-plot-card.tall { min-height: 320px; }
     .eda-plot-card.xl   { min-height: 420px; }
+
+    /* Transpose missing values table into label: value rows */
+    .miss-table thead { display: none; }
+    .miss-table tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+    .miss-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 0.75rem;
+    }
+    .miss-table td:last-child { border-bottom: none; }
+    .miss-table td::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        flex-shrink: 0;
+    }
 }
 </style>
 {% endblock %}
@@ -432,21 +455,23 @@
 <div class="page-mushroom-classification">
 
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Mushroom Classification</h1>
     <p class="subtitle">Full ML pipeline &mdash; edible vs poisonous &mdash; EDA, feature engineering, scaling, 4 classifiers with confusion matrix, ROC &amp; PR curves, and feature importance</p>
 </div>
 
 <div class="main-card">
 
-    <!-- Model toggle -->
-    <div class="model-toggle">
-        <button class="model-btn active" data-model="random_forest">Random Forest</button>
-        <button class="model-btn" data-model="gradient_boosting">Gradient Boosting</button>
-        <button class="model-btn" data-model="logistic_regression">Logistic Regression</button>
-        <button class="model-btn" data-model="decision_tree">Decision Tree</button>
+    <!-- Model toggle + re-run -->
+    <div class="controls-bar">
+        <div class="model-toggle">
+            <button class="model-btn active" data-model="random_forest">Random Forest</button>
+            <button class="model-btn" data-model="gradient_boosting">Gradient Boosting</button>
+            <button class="model-btn" data-model="logistic_regression">Logistic Regression</button>
+            <button class="model-btn" data-model="decision_tree">Decision Tree</button>
+        </div>
+        <button class="btn-rerun" id="btnRerun">&#8635;&nbsp; Re-run</button>
     </div>
-
-    <button class="btn-rerun" id="btnRerun">&#8635;&nbsp; Re-run</button>
 
     <!-- Run status -->
     <div class="run-row">

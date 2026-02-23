@@ -4,11 +4,13 @@
 
 {% block head_extra %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>.back-link:hover { color: #58cc02; }</style>
 {% endblock %}
 
 {% block content %}
 <div class="page-duolingo">
 <div class="project-header">
+    <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
     <h1>Duolingo Visualizer</h1>
     <p class="subtitle">Dutch language learning progress dashboard</p>
 </div>
