@@ -719,9 +719,18 @@ button:disabled, .btn:disabled {
     margin-bottom: 0.75rem;
 }
 
+.hero .tagline {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+}
+
 .hero .location {
     font-size: 0.95rem;
     color: var(--text-muted);
+    margin-top: 1.75rem;
 }
 
 .nav-cards {
@@ -730,7 +739,7 @@ button:disabled, .btn:disabled {
     gap: 1.25rem;
     width: 100%;
     max-width: 900px;
-    margin-top: 2.5rem;
+    margin-top: 1.25rem;
 }
 
 .nav-card {
@@ -893,6 +902,18 @@ button:disabled, .btn:disabled {
     color: var(--text-muted);
     font-size: 1.05rem;
     font-weight: 300;
+}
+
+.contact-cta {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
 }
 
 .contact-links {
