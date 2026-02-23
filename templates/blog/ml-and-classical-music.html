@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Zac Stryker{% endblock %}
+
+{% block content %}
+<article class="post">
+    <div class="post-header">
+        <a href="{{ url_for('blog') }}" class="post-back">&larr; Back to blog</a>
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">{{ post.date }}</div>
+    </div>
+
+    <div class="post-body">
+        <p>I've been playing classical piano for most of my life and working with machine learning for the past few years. For a long time these felt like completely separate things. Then I started noticing the same ideas showing up in both &mdash; dressed differently, named differently, but structurally the same. The more I looked, the more the parallel held.</p>
+
+        <p>This isn't a metaphor stretched for effect. The connections are precise enough to be useful. Understanding one actually helps you understand the other.</p>
+
+        <h2>Form Is Architecture</h2>
+
+        <p>Before a classical composer writes a single note, they choose a form. Sonata form, fugue, theme and variations, rondo. The form is a contract with the listener: here is how material will be introduced, developed, and resolved. It exists before the content does.</p>
+
+        <p>This is exactly what a model architecture is. Before you train anything, you choose a structure &mdash; transformer, convolutional network, recurrent network. The architecture determines what kinds of patterns can be represented and how information flows through the system. The weights are learned from data; the architecture is designed by hand.</p>
+
+        <p>A composer writing a fugue commits to a rule: every voice will eventually state the subject. That constraint isn't a limitation &mdash; it's generative. Bach didn't find the fugue restrictive; he found it inexhaustible. Similarly, the inductive biases baked into a CNN (local feature detection, translational invariance) aren't arbitrary restrictions. They encode assumptions about the structure of visual data, and those assumptions are what make the architecture powerful.</p>
+
+        <p>Both the composer and the ML engineer are making the same bet: that the right structure, chosen before any content is filled in, will make the final result more coherent.</p>
+
+        <h2>Gradient Descent and Voice Leading</h2>
+
+        <p>Gradient descent is the engine of most modern machine learning. At each step, it asks: in which direction does the loss decrease fastest? Then it takes a small step in that direction. It's a local process &mdash; no grand plan, just incremental improvement following the slope of the error surface.</p>
+
+        <p>The classical theory of voice leading works the same way. The fundamental rule of voice leading is: move each voice by the smallest interval that gets you to the next chord. Don't leap when you can step. Don't step when you can stay. The smoothest path through harmonic space is preferred. Bach spent a career demonstrating that following this local rule produces global coherence &mdash; four voices moving minimally, independently, but in coordination, creating something that sounds inevitable.</p>
+
+        <p>There's even an analogue to learning rate. Move too aggressively in voice leading &mdash; large leaps, jarring register changes &mdash; and the musical line loses its sense of direction. Move too timidly and you get static, uninspired writing. The same trade-off appears in gradient descent: too large a learning rate and the optimizer overshoots and diverges; too small and training crawls or stalls in a local minimum.</p>
+
+        <h2>Overfitting Is Pastiche</h2>
+
+        <p>An overfit model has memorized its training data. It performs perfectly on examples it has seen and fails completely on anything new. The problem isn't that it learned too much &mdash; it's that it learned the wrong things. It captured noise along with signal, specific instances rather than underlying patterns.</p>
+
+        <p>In music, this is pastiche. A composer who studies Mozart so thoroughly that every phrase sounds like Mozart isn't composing &mdash; they're reproducing. The stylistic fingerprints are accurate but the music doesn't generalize; it can't speak to anything the original didn't already say. Schoenberg identified this risk explicitly. He argued that imitating the surface features of a style, without internalizing the logic beneath them, produces works that look like originals but behave like copies under pressure.</p>
+
+        <p>The solution in both cases is the same: regularization. In ML, regularization adds a penalty for complexity, forcing the model to find simpler explanations that are more likely to generalize. In composition, the discipline of counterpoint serves the same function. The strict rules &mdash; no parallel fifths, handle dissonance carefully, resolve leading tones &mdash; are constraints that prevent the student from over-relying on surface effects. They force the underlying voice-leading logic to do the work, which is exactly what you need to internalize if you want to write something that isn't just a copy of whatever you've been listening to.</p>
+
+        <h2>Attention and Motivic Memory</h2>
+
+        <p>The attention mechanism, which underlies transformers, allows every element in a sequence to attend to every other element. When processing a word, the model can draw on context from anywhere in the input &mdash; the beginning, the end, wherever the relevant signal is. This long-range dependency is what makes transformers so effective at language: meaning often depends on something said far earlier in the text.</p>
+
+        <p>Classical music solves the same problem through motivic development. A motif introduced in the first bars of a symphony &mdash; Beethoven's four-note opening in the Fifth, say &mdash; reappears transformed throughout the entire work. The listener's memory holds it, and each reappearance creates a connection across time. The development section of sonata form is essentially a system for generating long-range coherence: taking material from the exposition, subjecting it to harmonic and rhythmic transformation, and returning to it resolved in the recapitulation.</p>
+
+        <p>Both attention and motivic development are mechanisms for making distant parts of a sequence relevant to each other. Both are answers to the same problem: how do you build something extended and internally coherent when local context alone isn't enough?</p>
+
+        <h2>What the Parallel Reveals</h2>
+
+        <p>I don't think this is a coincidence. Both classical composition and machine learning are fundamentally about the same thing: finding structure in complex spaces under uncertainty. A composer searches the space of possible note sequences for ones that satisfy aesthetic constraints. A learning algorithm searches a parameter space for configurations that minimize loss on a distribution of examples. The spaces are different, the constraints are different, but the search problem is structurally similar.</p>
+
+        <p>What I find useful about the parallel is that each tradition has developed different intuitions for the same underlying challenges. ML offers precise mathematical language for things music teachers communicate through rules of thumb. Music offers centuries of case studies in what makes structured systems expressive versus rigid, memorable versus forgettable.</p>
+
+        <blockquote><p>The most interesting thing about counterpoint rules isn't that they're restrictive &mdash; it's that following them consistently produces something that sounds free. That tension is worth thinking about.</p></blockquote>
+
+        <p>Gradient descent doesn't know it's doing voice leading. Bach didn't know he was doing optimization. But the logic connecting them is real, and noticing it makes both a little clearer.</p>
+    </div>
+</article>
+{% endblock %}

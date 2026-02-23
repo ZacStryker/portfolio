@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Zac Stryker{% endblock %}
+
+{% block content %}
+<article class="post">
+    <div class="post-header">
+        <a href="{{ url_for('blog') }}" class="post-back">&larr; Back to blog</a>
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">{{ post.date }}</div>
+    </div>
+
+    <div class="post-body">
+        <p>My grandfather was a cabinetmaker. Watching him work, what struck me wasn't the skill with tools &mdash; it was the amount of time he spent before touching any tool at all. Reading the wood. Deciding how to approach it. The actual cutting was almost an afterthought.</p>
+
+        <p>I've been thinking about that lately, because I keep running into the same dynamic in machine learning. The work that looks like the work &mdash; training, tuning, deploying &mdash; sits downstream of a quieter phase of understanding the material. Get that phase wrong and the rest doesn't matter how well you execute it.</p>
+
+        <h2>Grain and Inductive Bias</h2>
+
+        <p>Every piece of wood has a grain direction. Work with it and the plane glides, the surface comes out clean. Work against it and you get tear-out: fibers lifting instead of shearing, rough patches no amount of sanding fully corrects. The grain isn't a preference &mdash; it's a structural fact about the material that determines which approaches are viable.</p>
+
+        <p>Model architectures have the same property. The assumptions baked into a CNN &mdash; that useful features are local, that a pattern in one part of the image is probably useful elsewhere &mdash; are its grain. Apply a CNN to image classification and you're working with the grain. Apply it to a task where global context dominates over local structure, and you're fighting the material. The model will still run, the same way a plane still moves across wood in the wrong direction. But the output tells you something went wrong.</p>
+
+        <p>This is what machine learning people mean by <em>inductive bias</em>: the assumptions a model encodes before it sees any data. A recurrent network assumes sequence matters. A graph network assumes relationships between nodes matter. The choice of architecture is a bet about the structure of the problem, made before training begins. Choose the wrong grain orientation and no amount of data or compute fully compensates.</p>
+
+        <h2>Measure Twice</h2>
+
+        <p>The woodworking maxim &mdash; measure twice, cut once &mdash; is about the asymmetry between reversible and irreversible actions. A measurement costs seconds. A bad cut costs the board. The discipline is to do the cheap, recoverable thing thoroughly before committing to the expensive, unrecoverable one.</p>
+
+        <p>Exploratory data analysis is the ML equivalent. Looking at distributions, checking for class imbalance, finding missing values, plotting the target variable against each feature &mdash; all of this is cheap. Training a model on data you haven't understood is the cut made without measuring. The model will train, the metrics will look like numbers, but if the data had a problem you didn't find in EDA &mdash; a leaky feature, a shifted distribution, a target that was encoded wrong &mdash; you'll discover it in the worst possible way.</p>
+
+        <p>The pressure to skip EDA is real. It feels like the model training is the work, and EDA is just preparation. But a cabinetmaker who skips layout and measurement isn't moving faster &mdash; they're just moving the time spent from the front of the project to the back, where mistakes are harder to fix.</p>
+
+        <h2>Defects Are Information</h2>
+
+        <p>Woodworkers don't treat defects as obstacles. A knot, a check, a patch of wild figure &mdash; these are features of the specific piece of wood, and understanding them determines how you use the material. A knot in the wrong place can ruin a joint. In the right place, under the right finish, it's the best part of the board. The craftsman's job is to read the defects before deciding what the wood becomes.</p>
+
+        <p>Data defects work the same way. Missing values, outliers, inconsistent encoding, measurement error &mdash; these aren't just problems to be cleaned away. They're information about how the data was collected, what the data-generating process looks like, and where the model is likely to struggle. An outlier might be noise, or it might be the most important signal in the dataset. You can't know without understanding where it came from.</p>
+
+        <p>The instinct to write a quick <code>dropna()</code> and move on is the equivalent of cutting around a knot without looking at where it goes. Sometimes that's right. But treating every defect as identical &mdash; something to be removed rather than understood &mdash; means you're not actually reading your material.</p>
+
+        <h2>Wood Movement and Distribution Shift</h2>
+
+        <p>Wood is hygroscopic: it absorbs and releases moisture from the air, expanding and contracting with the seasons. Ignore this and you build furniture that cracks in winter, binds in summer. Every joint design in traditional woodworking accounts for movement. Frame-and-panel construction exists specifically to allow the panel to float freely rather than fight the frame. The craftsman isn't working with static material &mdash; they're designing for a material that will change.</p>
+
+        <p>Distribution shift is the same problem in a different medium. A model trained on data from one period, one region, or one user population will encounter different distributions at inference time. The world changes; the training data doesn't. A fraud detection model trained before a new attack pattern emerges will have no representation of it. A demand forecasting model trained in normal economic conditions will fail during a disruption.</p>
+
+        <p>The woodworker's response isn't to wish the wood would stay still. It's to design joints that accommodate movement, to orient pieces so expansion goes where it can, to choose species with stable grain for parts where movement would be catastrophic. The ML response is similar: monitor for drift, build systems that can be retrained, hold out temporal validation sets that simulate what the model will see in the future. Both disciplines require designing for the material's behavior over time, not just its state at the moment you acquired it.</p>
+
+        <h2>The Finish Reveals Everything</h2>
+
+        <p>In woodworking, the finish is the last step, but it isn't a formality. A coat of oil or varnish doesn't hide the surface &mdash; it amplifies it. Every mill mark, every scratch from a dull plane iron, every patch of torn grain that seemed acceptable in bare wood becomes more visible under a finish than it was before. Experienced woodworkers say that finishing starts with the first tool you pick up, because whatever state the surface is in when the finish goes on is the state it will be in forever.</p>
+
+        <p>Deployment has the same character. A model that looked fine during development gets put in front of real users with real data, and the failure modes that were acceptable in a notebook become unacceptable in production. Latency that was fine in testing becomes a problem at scale. Edge cases that appeared rarely in the validation set appear constantly with enough traffic. The errors that were abstract during evaluation have concrete consequences for actual people.</p>
+
+        <p>Both the finish and deployment are honest. They don't let you pretend the work is better than it is. Which means the right attitude toward both is the same: treat them not as the last step but as the most revealing one, and work backward from what they'll expose.</p>
+
+        <h2>Reading the Material</h2>
+
+        <p>The common thread is that both woodworking and machine learning are fundamentally about understanding the material before imposing a design on it. The wood tells you things if you look at it carefully enough. So does the data. The architecture, the algorithm, the joinery method &mdash; these matter, but they're downstream of reading what you're actually working with.</p>
+
+        <p>My grandfather would look at a board for a long time before doing anything to it. I used to think he was deciding what to make. I think now he was deciding what the board wanted to be &mdash; which parts were suited for which purposes, where the grain would cooperate and where it would fight, how to get the most out of the specific piece in front of him rather than the idealized piece he might have preferred. That's not a bad description of good data science either.</p>
+    </div>
+</article>
+{% endblock %}

@@ -3,6 +3,18 @@ from projects import discover_and_register, PROJECT_REGISTRY
 
 BLOG_POSTS = [
     {
+        'slug': 'ml-and-classical-music',
+        'title': 'Gradient Descent and Voice Leading: Parallels Between Machine Learning and Classical Music',
+        'date': '2026-02-23',
+        'summary': 'The same structural ideas keep appearing in both ML theory and classical composition — optimization, overfitting, long-range coherence. The parallel is precise enough to be useful.',
+    },
+    {
+        'slug': 'ml-and-woodworking',
+        'title': 'Knowing the Grain: Parallels Between Machine Learning and Woodworking',
+        'date': '2026-02-16',
+        'summary': 'Inductive bias, distribution shift, and the discipline of understanding your material before acting on it — the same ideas show up in the workshop and in the training loop.',
+    },
+    {
         'slug': 'fte-adjustment-model',
         'title': 'FTE Adjustment Model: Modeling Productivity Ramps During Employee Leave',
         'date': '2026-02-05',
