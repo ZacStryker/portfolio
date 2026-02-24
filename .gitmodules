@@ -1,0 +1,21 @@
+[submodule "projects/customer_segmentation"]
+	path = projects/customer_segmentation
+	url = git@github.com:ZacStryker/customer-segmentation.git
+[submodule "projects/digit_recognition"]
+	path = projects/digit_recognition
+	url = git@github.com:ZacStryker/digit-recognition.git
+[submodule "projects/duolingo_visualizer"]
+	path = projects/duolingo_visualizer
+	url = git@github.com:ZacStryker/duolingo-visualizer.git
+[submodule "projects/mushroom_classification"]
+	path = projects/mushroom_classification
+	url = git@github.com:ZacStryker/mushroom-classification.git
+[submodule "projects/related_artists"]
+	path = projects/related_artists
+	url = git@github.com:ZacStryker/related-artists.git
+[submodule "projects/text_summary"]
+	path = projects/text_summary
+	url = git@github.com:ZacStryker/text-summary.git
+[submodule "projects/work_life_regression"]
+	path = projects/work_life_regression
+	url = git@github.com:ZacStryker/work-life-regression.git
