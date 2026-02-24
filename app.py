@@ -45,7 +45,7 @@ def create_app():
 
     @app.route('/projects/')
     def projects():
-        return render_template('home.html')
+        return render_template('projects.html')
 
     @app.route('/resume/')
     def resume():

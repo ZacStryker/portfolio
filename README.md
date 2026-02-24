@@ -42,7 +42,7 @@ ml_hub/
 ├── templates/
 │   ├── base.html              # Master layout (topbar, sidebar, theme toggle)
 │   ├── landing.html           # Portfolio homepage
-│   ├── home.html              # Project listing grid
+│   ├── projects.html          # Project listing grid
 │   ├── about.html
 │   ├── resume.html
 │   ├── contact.html
