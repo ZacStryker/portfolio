@@ -4,26 +4,28 @@ A fullstack portfolio and interactive machine learning showcase built with Flask
 
 ## Projects
 
+Each project lives in its own GitHub repo, wired in here as a git submodule.
+
 ### Machine Learning
 
 | Project | Description | Runs On |
 |---------|-------------|---------|
-| [Digit Recognition](projects/digit_recognition/) | Draw a digit and a neural network identifies it in real-time with confidence scores | Client (TensorFlow.js) |
-| [Text Summarization](projects/text_summary/) | Summarize text with 4 algorithms — TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
-| [Customer Segmentation](projects/customer_segmentation/) | Animated K-means++ clustering with RFM analysis, elbow method, and silhouette scoring | Client (Chart.js) |
-| [Mushroom Classification](projects/mushroom_classification/) | Compare Random Forest, Gradient Boosting, Logistic Regression, and Decision Tree classifiers on the UCI Mushroom dataset | Server (scikit-learn) |
-| [Work-Life Regression](projects/work_life_regression/) | Regression pipeline predicting quality of life scores from work/life balance features with EDA plots | Server (scikit-learn, seaborn) |
+| [Digit Recognition](https://github.com/ZacStryker/digit-recognition) | Draw a digit and a neural network identifies it in real-time with confidence scores | Client (TensorFlow.js) |
+| [Text Summarization](https://github.com/ZacStryker/text-summary) | Summarize text with 4 algorithms — TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
+| [Customer Segmentation](https://github.com/ZacStryker/customer-segmentation) | Animated K-means++ clustering with RFM analysis, elbow method, and silhouette scoring | Client (Chart.js) |
+| [Mushroom Classification](https://github.com/ZacStryker/mushroom-classification) | Compare Random Forest, Gradient Boosting, Logistic Regression, and Decision Tree on the UCI Mushroom dataset | Server (scikit-learn) |
+| [Longevity Prediction](https://github.com/ZacStryker/work-life-regression) | Predict age at death from lifestyle habits using four regression models with GridSearchCV tuning and EDA plots | Server (scikit-learn, seaborn) |
 
 ### Data & Visualization
 
 | Project | Description | Runs On |
 |---------|-------------|---------|
-| [Duolingo Visualizer](projects/duolingo_visualizer/) | Dashboard with calendar heatmap and charts for language learning progress | Client (Canvas, Chart.js) |
-| [Related Artists](projects/related_artists/) | Explore artist collaborator networks via the Discogs API with streaming results | Server (Discogs API, SSE) |
+| [Duolingo Visualizer](https://github.com/ZacStryker/duolingo-visualizer) | Dashboard with calendar heatmap and charts for language learning progress | Client (Canvas, Chart.js) |
+| [Related Artists](https://github.com/ZacStryker/related-artists) | Explore artist collaborator networks via the Discogs API with streaming results | Server (Discogs API, SSE) |
 
 ## Architecture
 
-Projects are **self-contained Flask blueprints** discovered and registered automatically at startup. Each project lives in its own directory under `projects/` with a `PROJECT_META` dict and a `bp` Blueprint. Adding a new project is as simple as creating a new package — no manual wiring needed.
+Projects are **self-contained Flask blueprints** discovered and registered automatically at startup. Each project lives in its own GitHub repo, mounted as a git submodule under `projects/`. Each package exposes a `PROJECT_META` dict and a `bp` Blueprint — adding a new project requires no manual wiring in the main app.
 
 ```
 ml_hub/
@@ -48,13 +50,13 @@ ml_hub/
 │   └── blog/                  # Individual blog posts
 └── projects/
     ├── __init__.py             # Auto-discovery and blueprint registration
-    ├── digit_recognition/
-    ├── text_summary/
-    ├── customer_segmentation/
-    ├── mushroom_classification/
-    ├── work_life_regression/
-    ├── duolingo_visualizer/
-    └── related_artists/
+    ├── customer_segmentation/  # submodule → ZacStryker/customer-segmentation
+    ├── digit_recognition/      # submodule → ZacStryker/digit-recognition
+    ├── duolingo_visualizer/    # submodule → ZacStryker/duolingo-visualizer
+    ├── mushroom_classification/ # submodule → ZacStryker/mushroom-classification
+    ├── related_artists/        # submodule → ZacStryker/related-artists
+    ├── text_summary/           # submodule → ZacStryker/text-summary
+    └── work_life_regression/   # submodule → ZacStryker/work-life-regression
 ```
 
 ## Tech Stack
@@ -71,6 +73,8 @@ ml_hub/
 ### Local development
 
 ```bash
+git clone --recurse-submodules https://github.com/ZacStryker/portfolio.git
+cd portfolio
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -78,6 +82,8 @@ python app.py
 ```
 
 The app starts at `http://localhost:5000`.
+
+> If you cloned without `--recurse-submodules`, run `git submodule update --init --recursive` to pull the project code.
 
 ### Docker
 
@@ -111,6 +117,6 @@ Nginx serves on ports 80/443. Flask runs internally on port 8000 behind Gunicorn
 | `/text-summary/` | Text Summarization project |
 | `/customer-segmentation/` | Customer Segmentation project |
 | `/mushroom-classification/` | Mushroom Classification project |
-| `/work-life-regression/` | Work-Life Regression project |
+| `/work-life-regression/` | Longevity Prediction project |
 | `/duolingo-visualizer/` | Duolingo Visualizer project |
 | `/related-artists/` | Related Artists project |
