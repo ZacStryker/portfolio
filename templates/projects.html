@@ -16,6 +16,11 @@
         {% for project in projects if project.nav_group == group %}
         <a href="/{{ project.id }}/" class="project-card" style="--accent: {{ project.color }}">
             <div class="card-accent"></div>
+            {% if project.screenshot %}
+            <div class="card-screenshot">
+                <img src="/static/{{ project.screenshot }}" alt="{{ project.name }} screenshot" loading="lazy">
+            </div>
+            {% endif %}
             <div class="card-body">
                 <span class="card-category">{{ project.category }}</span>
                 <h2>{{ project.name }}</h2>

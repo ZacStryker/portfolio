@@ -13,6 +13,29 @@
 
     </div>
 
+    {% set featured = projects | selectattr('id', 'equalto', 'mushroom-classification') | first %}
+    {% if featured %}
+    <div class="featured-project">
+        <p class="featured-label">Featured Project</p>
+        <a href="/{{ featured.id }}/" class="featured-card" style="--accent: {{ featured.color }}">
+            <div class="featured-card-image">
+                <img src="/static/{{ featured.screenshot }}" alt="{{ featured.name }} screenshot">
+            </div>
+            <div class="featured-card-body">
+                <span class="card-category">{{ featured.category }}</span>
+                <h2>{{ featured.name }}</h2>
+                <p>{{ featured.description }}</p>
+                <div class="card-tags">
+                    {% for tag in featured.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                <span class="card-link">Launch &rarr;</span>
+            </div>
+        </a>
+    </div>
+    {% endif %}
+
     <div class="nav-cards">
         <a href="{{ url_for('projects') }}" class="nav-card">
             <div class="nav-card-icon">{{ projects | length }}</div>
