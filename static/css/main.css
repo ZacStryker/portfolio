@@ -118,6 +118,10 @@ body::before {
     display: block;
 }
 
+.github-label {
+    display: none;
+}
+
 /* --- Hamburger (hidden on desktop) --- */
 
 .hamburger {
@@ -290,6 +294,11 @@ body::before {
 
     .topbar-github {
         margin-left: 0;
+        gap: 0.5rem;
+    }
+
+    .github-label {
+        display: inline;
     }
 
     .topbar-link {
@@ -725,8 +734,6 @@ button:disabled, .btn:disabled {
 
 .featured-project {
     width: 100%;
-    max-width: 860px;
-    margin: 2rem auto 0;
 }
 
 .featured-label {
@@ -807,13 +814,24 @@ button:disabled, .btn:disabled {
     min-height: calc(100vh - 6rem);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 2rem;
     padding: 2rem;
+}
+
+.landing-top {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    align-items: stretch;
+    gap: 6rem;
 }
 
 .hero {
     text-align: center;
-    padding: 4rem 0 3rem;
+    padding: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-headshot {
@@ -822,13 +840,15 @@ button:disabled, .btn:disabled {
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--border);
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
+    display: block;
 }
 
 .hero h1 {
     font-size: 3.5rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
+    white-space: nowrap;
 }
 
 .hero .role {
@@ -836,6 +856,7 @@ button:disabled, .btn:disabled {
     color: var(--text-muted);
     font-weight: 300;
     margin-bottom: 0.75rem;
+    white-space: nowrap;
 }
 
 .hero .tagline {
@@ -852,9 +873,34 @@ button:disabled, .btn:disabled {
     margin-top: 1.75rem;
 }
 
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+}
+
 .nav-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
     gap: 1.25rem;
     width: 100%;
     max-width: 900px;
@@ -866,6 +912,9 @@ button:disabled, .btn:disabled {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: center;
     text-decoration: none;
     color: var(--text);
@@ -889,25 +938,32 @@ button:disabled, .btn:disabled {
 }
 
 .nav-card h2 {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 0.4rem;
 }
 
 .nav-card p {
     color: var(--text-muted);
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 
 @media (max-width: 768px) {
+    .landing-top {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .hero {
+        padding: 1.5rem 0 0.5rem;
+        position: static;
+    }
+
     .hero h1 {
         font-size: 2.5rem;
     }
 
-    .nav-cards {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 @media (max-width: 480px) {
