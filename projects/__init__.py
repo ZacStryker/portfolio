@@ -15,5 +15,5 @@ def discover_and_register(app):
             app.register_blueprint(module.bp)
             PROJECT_REGISTRY.append(module.PROJECT_META)
 
-    _group_order = {'Machine Learning': 0, 'Data & Visualization': 1}
+    _group_order = {'GenAI': 0, 'Machine Learning': 1, 'Data & Visualization': 2}
     PROJECT_REGISTRY.sort(key=lambda p: (_group_order.get(p.get('nav_group', ''), 99), p['name']))

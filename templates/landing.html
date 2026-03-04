@@ -8,7 +8,7 @@
         <div class="hero">
             <img src="{{ url_for('static', filename='headshot.jpg') }}" alt="Zac Stryker" class="hero-headshot">
             <h1>Zac Stryker</h1>
-            <p class="role">ML Engineer | Full-stack Developer</p>
+            <p class="role">Full-stack GenAI &amp; ML Engineer</p>
             <p class="tagline">Turning data into decisions.</p>
             <a href="{{ url_for('contact') }}" class="hero-cta">Get in touch</a>
         </div>
@@ -37,27 +37,32 @@
         </div>
     </div>
 
-    {% set featured = projects | selectattr('id', 'equalto', 'mushroom-classification') | first %}
-    {% if featured %}
+    {% set featured_ids = ['rag-chatbot', 'mushroom-classification'] %}
     <div class="featured-project">
-        <p class="featured-label">Featured Project</p>
-        <a href="/{{ featured.id }}/" class="featured-card" style="--accent: {{ featured.color }}">
-            <div class="featured-card-image">
-                <img src="/static/{{ featured.screenshot }}" alt="{{ featured.name }} screenshot">
-            </div>
-            <div class="featured-card-body">
-                <span class="card-category">{{ featured.category }}</span>
-                <h2>{{ featured.name }}</h2>
-                <p>{{ featured.description }}</p>
-                <div class="card-tags">
-                    {% for tag in featured.tags %}
-                    <span class="tag">{{ tag }}</span>
-                    {% endfor %}
+        <p class="featured-label">Featured Projects</p>
+        <div class="featured-grid">
+            {% for fid in featured_ids %}
+            {% set fp = projects | selectattr('id', 'equalto', fid) | first %}
+            {% if fp %}
+            <a href="/{{ fp.id }}/" class="featured-card" style="--accent: {{ fp.color }}">
+                <div class="featured-card-image {% if fp.id == 'rag-chatbot' %}img-crop-bottom{% endif %}">
+                    <img src="/static/{{ fp.screenshot }}" alt="{{ fp.name }} screenshot">
                 </div>
-                <span class="card-link">Launch &rarr;</span>
-            </div>
-        </a>
+                <div class="featured-card-body">
+                    <span class="card-category">{{ fp.category }}</span>
+                    <h2>{{ fp.full_name if fp.full_name else fp.name }}</h2>
+                    <p>{{ fp.description }}</p>
+                    <div class="card-tags">
+                        {% for tag in fp.tags %}
+                        <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    <span class="card-link">Launch &rarr;</span>
+                </div>
+            </a>
+            {% endif %}
+            {% endfor %}
+        </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
