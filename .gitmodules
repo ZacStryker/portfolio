@@ -19,3 +19,6 @@
 [submodule "projects/work_life_regression"]
 	path = projects/work_life_regression
 	url = git@github.com:ZacStryker/work-life-regression.git
+[submodule "projects/rag_chatbot"]
+	path = projects/rag_chatbot
+	url = https://github.com/ZacStryker/dnd-rag.git
