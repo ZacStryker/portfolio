@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, render_template, abort
 from projects import discover_and_register, PROJECT_REGISTRY
 

@@ -72,7 +72,7 @@
         {% if ns.show_sidebar %}
         <nav class="sidebar">
             <div class="sidebar-nav">
-                {% set nav_groups = ['Machine Learning', 'Data & Visualization'] %}
+                {% set nav_groups = ['GenAI', 'Machine Learning', 'Data & Visualization'] %}
                 {% for group in nav_groups %}
                 <div class="sidebar-group-label">{{ group }}</div>
                 {% for project in projects if project.nav_group == group %}
