@@ -1,17 +1,23 @@
 # Portfolio Site
 
-A fullstack portfolio and interactive machine learning showcase built with Flask. Features seven self-contained project demos spanning computer vision, NLP, unsupervised learning, classification, regression, data visualization, and music data exploration — plus a blog, resume, and contact pages.
+A fullstack portfolio and interactive ML/GenAI showcase built with Flask. Features eight self-contained project demos spanning retrieval-augmented generation, computer vision, NLP, unsupervised learning, classification, regression, data visualization, and music data exploration — plus a blog, resume, and contact pages.
 
 ## Projects
 
 Each project lives in its own GitHub repo, wired in here as a git submodule.
+
+### GenAI
+
+| Project | Description | Runs On |
+|---------|-------------|---------|
+| [D&D RAG](https://github.com/ZacStryker/dnd-rag) | Ask natural language questions about D&D 5e — semantic search retrieves relevant passages from the DMG, PHB & MM, then Claude synthesizes a cited answer | Server (sentence-transformers, sqlite-vec, Anthropic Claude) |
+| [Text Summarization](https://github.com/ZacStryker/text-summary) | Summarize text with 4 algorithms — TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
 
 ### Machine Learning
 
 | Project | Description | Runs On |
 |---------|-------------|---------|
 | [Digit Recognition](https://github.com/ZacStryker/digit-recognition) | Draw a digit and a neural network identifies it in real-time with confidence scores | Client (TensorFlow.js) |
-| [Text Summarization](https://github.com/ZacStryker/text-summary) | Summarize text with 4 algorithms — TextRank, LSA, Luhn, and BART (abstractive) | Server (PyTorch, Transformers) |
 | [Customer Segmentation](https://github.com/ZacStryker/customer-segmentation) | Animated K-means++ clustering with RFM analysis, elbow method, and silhouette scoring | Client (Chart.js) |
 | [Mushroom Classification](https://github.com/ZacStryker/mushroom-classification) | Compare Random Forest, Gradient Boosting, Logistic Regression, and Decision Tree on the UCI Mushroom dataset | Server (scikit-learn) |
 | [Longevity Prediction](https://github.com/ZacStryker/work-life-regression) | Predict age at death from lifestyle habits using four regression models with GridSearchCV tuning and EDA plots | Server (scikit-learn, seaborn) |
@@ -54,6 +60,7 @@ ml_hub/
     ├── digit_recognition/      # submodule → ZacStryker/digit-recognition
     ├── duolingo_visualizer/    # submodule → ZacStryker/duolingo-visualizer
     ├── mushroom_classification/ # submodule → ZacStryker/mushroom-classification
+    ├── rag_chatbot/            # submodule → ZacStryker/dnd-rag
     ├── related_artists/        # submodule → ZacStryker/related-artists
     ├── text_summary/           # submodule → ZacStryker/text-summary
     └── work_life_regression/   # submodule → ZacStryker/work-life-regression
@@ -63,8 +70,9 @@ ml_hub/
 
 - **Backend**: Flask, Gunicorn (gevent), Python 3.12
 - **Frontend**: Vanilla JavaScript, Chart.js, TensorFlow.js, Canvas API
+- **GenAI**: Anthropic Claude API (streaming), sentence-transformers, sqlite-vec, RAG pipeline
 - **ML/NLP**: PyTorch, Hugging Face Transformers (BART), NLTK, Sumy, scikit-learn, seaborn
-- **APIs**: Discogs (python3-discogs-client)
+- **APIs**: Anthropic, Discogs (python3-discogs-client)
 - **Deployment**: Docker, Nginx, Let's Encrypt SSL
 - **Styling**: Custom CSS with dark/light theme via CSS variables and `localStorage`
 
@@ -99,6 +107,7 @@ Nginx serves on ports 80/443. Flask runs internally on port 8000 behind Gunicorn
 
 | Variable | Description | Default |
 |----------|-------------|---------|
+| `ANTHROPIC_API_KEY` | Anthropic API key (required for D&D RAG) | — |
 | `DISCOGS_USER_AGENT` | User-Agent string for Discogs API requests | `MLHub/1.0` |
 | `DISCOGS_USER_TOKEN` | Discogs personal access token (required for Related Artists) | — |
 
@@ -113,6 +122,7 @@ Nginx serves on ports 80/443. Flask runs internally on port 8000 behind Gunicorn
 | `/resume/` | Resume |
 | `/about/` | About |
 | `/contact/` | Contact |
+| `/rag-chatbot/` | D&D RAG project |
 | `/digit-recognition/` | Digit Recognition project |
 | `/text-summary/` | Text Summarization project |
 | `/customer-segmentation/` | Customer Segmentation project |
