@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Zac Stryker{% endblock %}
+
+{% block content %}
+<article class="post">
+    <div class="post-header">
+        <a href="{{ url_for('blog') }}" class="post-back">&larr; Back to blog</a>
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">{{ post.date }}</div>
+    </div>
+
+    <div class="post-body">
+        <p>I recently built a RAG chatbot that answers questions about Dungeons &amp; Dragons 5th Edition rules. Ask it about anything in the rulebooks, it retrieves the relevant passages from the Dungeon Master&rsquo;s Guide, Player&rsquo;s Handbook, and Monster Manual, and Claude synthesizes a cited answer grounded in what it found. While building it, I noticed the program flow mapped almost exactly onto what a well-prepared Dungeon Master does at the table.</p>
+
+        <h2>The Improv DM Problem</h2>
+
+        <p>There are two kinds of DMs. The first runs everything from memory and intuition &mdash; absorbed the general feel of the rules, fills in the gaps on the fly, never breaks flow to look anything up. Ask this DM what happens when two concentration spells interact and you&rsquo;ll get a confident answer that may or may not match the rulebook. Think of it as rolling a Natural 1 on a Knowledge check: full confidence, zero accuracy. Repeat enough times across a campaign and the rules become a moving target.</p>
+
+        <p>This is a base language model without retrieval. Trained on enough D&amp;D content to sound authoritative, but generating from internalized patterns rather than the actual text. It will occasionally produce rules that don&rsquo;t exist, numbers that are wrong, mechanics that blend two editions. Confident, fluent, and sometimes wrong.</p>
+
+        <p>The second kind of DM preps. When a player asks a rules question, they reach for the book, find the passage, and read it aloud. &ldquo;PHB page 198 says&hellip;&rdquo; The answer is grounded in source text the player can verify. RAG is the second DM.</p>
+
+        <h2>Retrieve First, Then Generate</h2>
+
+        <p>The core RAG loop: encode the question into a vector, search the knowledge base for the most similar passages, load those passages into the prompt as context, then ask the model to synthesize an answer. The model isn&rsquo;t asked to recall &mdash; it&rsquo;s given the relevant text.</p>
+
+        <p>This is exactly what the well-prepared DM is doing. A player asks whether their paladin&rsquo;s Divine Smite works against undead. The DM doesn&rsquo;t generate from scratch &mdash; they retrieve the rule and synthesize: &ldquo;Divine Smite does extra radiant damage against undead and fiends, so yes, you&rsquo;d get the bonus.&rdquo; Think of the vector database as the DM&rsquo;s binder &mdash; that beat-up three-ring binder every veteran DM has, stuffed with printed rules and tabbed for fast lookup. It doesn&rsquo;t generate anything. It just holds what you might need.</p>
+
+        <h2>Chunking Is How You&rsquo;ve Internalized the Rules</h2>
+
+        <p>In a RAG pipeline, chunking strategy matters. Chunks too large bury the specific sentence you need in irrelevant text. Too small and you lose the surrounding context that gives a rule its meaning. Good chunking carves the material at its natural joints &mdash; the units in which information is actually used.</p>
+
+        <p>An experienced DM doesn&rsquo;t remember the PHB as a continuous 300-page document. They remember it in functional units: running combat, spellcasting mechanics, character class abilities. A DM internalized at the chapter level answers slowly and approximately. One internalized at the subsystem level retrieves quickly and precisely. The quality of retrieval depends on how the knowledge was stored &mdash; in both the DM and the vector database.</p>
+
+        <h2>Session Prep as Context Loading</h2>
+
+        <p>A DM preparing for a dungeon heist session doesn&rsquo;t re-read the entire DMG. They re-read the sections on traps, locks, skill checks, and chase mechanics &mdash; loading the context most likely to come up. This is what RAG does at query time. The retrieval step surfaces the passages most relevant to this specific question and loads them into the model&rsquo;s context window. The context window is the DM&rsquo;s working memory during the session. Pre-retrieval is prep.</p>
+
+        <h2>Citations as Accountability</h2>
+
+        <p>When an answer is generated from retrieved chunks, you know exactly which passages were used, what pages they came from, and which book they belong to. Every answer is verifiable. If the system says &ldquo;[PHB p. 198]&rdquo;, you can go check.</p>
+
+        <p>The rules-lawyer player at the D&amp;D table is asking for the same thing. &ldquo;Where does it say that?&rdquo; is a citation request. Every rules-lawyer is essentially implementing RAG manually: retrieve first, verify second, then argue about it for fifteen minutes. The DM who can answer with a page number is running a grounded game. The DM who can&rsquo;t is running on vibes &mdash; and vibes make bad AI systems.</p>
+
+        <h2>What the Parallel Reveals</h2>
+
+        <p>&ldquo;Retrieval-augmented generation&rdquo; sounds like an engineering optimization. &ldquo;Look it up before you answer&rdquo; sounds like common sense. They&rsquo;re the same instruction. Both the DM and RAG separate the retrieval problem from the generation problem &mdash; retrieval is a search problem, generation is a language problem &mdash; and by separating them, each component can do what it&rsquo;s actually good at. The best DMs are good at both: fast, accurate retrieval from years of internalized rules, plus the improvisational skill to synthesize a ruling that fits the moment. RAG makes the same decomposition explicit, and by making it explicit, it becomes something you can measure, improve, and trust.</p>
+    </div>
+</article>
+{% endblock %}

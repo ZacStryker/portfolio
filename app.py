@@ -6,6 +6,12 @@ from projects import discover_and_register, PROJECT_REGISTRY
 
 BLOG_POSTS = [
     {
+        'slug': 'rag-and-dungeon-masters',
+        'title': 'Roll for Insight: What Dungeon Masters Can Teach Us About RAG',
+        'date': '2026-03-06',
+        'summary': 'The architecture of retrieval-augmented generation maps surprisingly cleanly onto what a well-prepared Dungeon Master does at the table. Retrieve first, then generate — grounded in the source text.',
+    },
+    {
         'slug': 'ml-and-classical-music',
         'title': 'Gradient Descent and Voice Leading: Parallels Between Machine Learning and Classical Music',
         'date': '2026-02-23',
